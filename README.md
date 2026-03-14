@@ -3,7 +3,7 @@ Frontend-ecosystem-hub
 
 /*---------------------------------------------------------------------------------------------*\
 
-# Frontend Ecosystem Hub
+# Frontend Ecosystem Hub --- URL ::: https://smruti26.github.io/Frontend-ecosystem-hub/
 
 **Frontend Ecosystem Hub** is an interactive educational platform designed to help developers understand how modern frontend technologies work behind the scenes. The project visually explains the architecture, data flow, and internal processes of popular frontend ecosystems using diagrams and animations.
 
