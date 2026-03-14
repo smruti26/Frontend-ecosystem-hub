@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Architecture Hub</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%236c5dd3'/%3E%3Ctext x='16' y='22' font-size='18' font-family='system-ui' font-weight='700' fill='white' text-anchor='middle'%3EFE%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── LIGHT MODE (default) ── */
+:root {
+  --white:#ffffff;--bg:#f8f7ff;--surface:#ffffff;--border:#e8e4f8;--border2:#d4cdf4;
+  --p50:#f3f1ff;--p100:#e8e4fe;--p200:#d4cdfb;--p400:#a89af0;--p500:#8b7ae8;--p600:#6c5dd3;--p700:#5344b0;--p800:#3d3189;
+  --b50:#eff6ff;--b100:#dbeafe;--b400:#60a5fa;--b500:#3b82f6;--b600:#2563eb;--b700:#1d4ed8;
+  --t1:#1e1b4b;--t2:#6b7280;--t3:#9ca3af;
+  --success:#059669;--warn:#d97706;--info:#2563eb;
+  --code-bg:#f0edff;--tag-bg:#ede9ff;--tag-text:#5b21b6;
+  --dot-color:rgba(108,93,211,0.13);
+  --circuit-color:rgba(108,93,211,0.055);
+  --circuit-diag:rgba(37,99,235,0.04);
+  --circuit-node:rgba(108,93,211,0.09);
+  --circuit-ring:rgba(108,93,211,0.07);
+}
+
+/* ── DARK MODE ── */
+[data-theme="dark"] {
+  --white:#1a1830;--bg:#13111f;--surface:#1a1830;--border:#2d2850;--border2:#3d3870;
+  --p50:#1e1a40;--p100:#252047;--p200:#2e2860;--p400:#7a6fd4;--p500:#8b7ae8;--p600:#a090f0;--p700:#b8aaff;--p800:#d4ccff;
+  --b50:#0f1a30;--b100:#162240;--b400:#4a90d9;--b500:#5b9fee;--b600:#6aaaff;--b700:#90c0ff;
+  --t1:#e8e4ff;--t2:#9490b8;--t3:#5c5880;
+  --success:#34d399;--warn:#f59e0b;--info:#60a5fa;
+  --code-bg:#1e1a3a;--tag-bg:#252047;--tag-text:#b8aaff;
+  --dot-color:rgba(168,154,240,0.12);
+  --circuit-color:rgba(139,122,232,0.07);
+  --circuit-diag:rgba(96,165,250,0.05);
+  --circuit-node:rgba(139,122,232,0.12);
+  --circuit-ring:rgba(139,122,232,0.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body,#app{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;transition:background 0.3s,color 0.3s;}
+
+/* ── Watermark background pattern ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: 0 0;
+  transition: background-image 0.3s;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--circuit-svg, none);
+  background-size: 480px 480px;
+  background-repeat: repeat;
+  transition: opacity 0.4s;
+}
+
+/* all content sits above the pattern */
+.header, .layout, #app > * { position: relative; z-index: 1; }
+
+.header{background:var(--white);border-bottom:1px solid var(--border);padding:0 2rem;position:sticky;top:0;z-index:100;box-shadow:0 1px 16px rgba(108,93,211,0.08);overflow:hidden;transition:background 0.3s,border-color 0.3s;}
+.header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 15% 50%,rgba(108,93,211,0.06) 0%,transparent 55%),radial-gradient(circle at 85% 50%,rgba(37,99,235,0.04) 0%,transparent 50%);pointer-events:none;}
+.hdr-pattern{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:1;}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;position:relative;z-index:1;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--t1);}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--p600),var(--b600));border-radius:9px;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(108,93,211,0.3);}
+.logo-name{display:flex;flex-direction:column;gap:1px;}
+.logo-title{font-size:14.5px;font-weight:600;color:var(--t1);line-height:1;}
+.logo-sub{font-size:10px;font-weight:400;color:var(--t3);letter-spacing:0.03em;line-height:1;}
+.header-nav{display:flex;gap:4px;flex-wrap:wrap;}
+.header-nav button{background:none;border:none;padding:6px 14px;border-radius:6px;font-family:inherit;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all 0.15s;}
+.header-nav button:hover{background:var(--p50);color:var(--p600);}
+.nav-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;vertical-align:middle;margin-right:5px;flex-shrink:0;}
+.nav-icon svg{width:16px;height:16px;display:block;}
+.sb-icon{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;flex-shrink:0;}
+.sb-icon svg{width:15px;height:15px;display:block;}
+.header-nav button.active{background:var(--p100);color:var(--p700);}
+.layout{max-width:1200px;margin:0 auto;padding:2rem;display:grid;grid-template-columns:220px 1fr;gap:2rem;}
+.sidebar{position:sticky;top:80px;align-self:start;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1rem;height:fit-content;transition:background 0.3s,border-color 0.3s;}
+.sidebar-section{margin-bottom:1.2rem;}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--t3);padding:0 8px;margin-bottom:6px;}
+.sidebar-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--t2);font-weight:500;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;}
+.sidebar-item:hover{background:var(--p50);color:var(--p600);}
+.sidebar-item.active{background:var(--p100);color:var(--p700);}
+.sidebar-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.content{min-width:0;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.hero{border-radius:16px;padding:2rem 2.5rem;color:white;margin-bottom:2rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-30px;right:-30px;width:180px;height:180px;background:rgba(255,255,255,0.06);border-radius:50%;}
+.hero::after{content:'';position:absolute;bottom:-50px;right:60px;width:120px;height:120px;background:rgba(255,255,255,0.04);border-radius:50%;}
+.hero-tag{display:inline-block;background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;margin-bottom:12px;letter-spacing:0.05em;}
+.hero h1{font-size:26px;font-weight:600;margin-bottom:8px;line-height:1.3;}
+.hero p{font-size:14px;opacity:0.85;max-width:520px;line-height:1.6;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;transition:background 0.3s,border-color 0.3s;}
+.card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:1.2rem;}
+.card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.card-title{font-size:16px;font-weight:600;margin-bottom:4px;}
+.card-desc{font-size:13px;color:var(--t2);line-height:1.5;}
+.flow-diagram{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1rem 0;}
+.flow-title{font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--t3);margin-bottom:1rem;}
+.flow-steps{display:flex;flex-direction:column;gap:0;align-items:flex-start;}
+.flow-node{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;white-space:nowrap;border:1px solid transparent;min-width:160px;text-align:center;}
+.flow-arrow{width:2px;height:20px;background:var(--border2);margin-left:80px;position:relative;}
+.flow-arrow::after{content:'';position:absolute;bottom:-5px;left:-4px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--border2);}
+.node-purple{background:var(--p50);border-color:var(--p200);color:var(--p700);}
+.node-blue{background:var(--b50);border-color:var(--b100);color:var(--b700);}
+.node-green{background:#f0fdf4;border-color:#bbf7d0;color:#065f46;}
+.node-orange{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
+.node-teal{background:#f0fdfa;border-color:#99f6e4;color:#134e4a;}
+.node-pink{background:#fdf2f8;border-color:#f9a8d4;color:#831843;}
+.node-gray{background:#f9fafb;border-color:#e5e7eb;color:#374151;}
+.tabs{display:flex;gap:2px;background:var(--p50);border-radius:10px;padding:4px;margin-bottom:1rem;}
+.tab-btn{flex:1;padding:8px 12px;border:none;background:none;border-radius:7px;font-family:inherit;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all 0.15s;}
+.tab-btn:hover{background:rgba(108,93,211,0.1);color:var(--p600);}
+.tab-btn.active{background:white;color:var(--p700);box-shadow:0 1px 4px rgba(108,93,211,0.12);}
+.code-block{background:var(--code-bg);border:1px solid var(--p100);border-radius:10px;padding:1rem 1.2rem;font-family:'DM Mono',monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin:1rem 0;color:var(--p800);}
+.code-comment{color:var(--p400);}
+.code-keyword{color:var(--b600);font-weight:500;}
+.code-string{color:var(--success);}
+.code-func{color:var(--p600);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.03em;}
+.badge-purple{background:var(--tag-bg);color:var(--tag-text);}
+.badge-blue{background:var(--b50);color:var(--b700);}
+.badge-green{background:#ecfdf5;color:#065f46;}
+.badge-orange{background:#fff7ed;color:#9a3412;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;}
+.compare-card{border:1px solid var(--border);border-radius:12px;padding:1.2rem;}
+.compare-card h4{font-size:14px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.compare-item{font-size:12px;color:var(--t2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:6px;line-height:1.4;}
+.compare-item:last-child{border-bottom:none;}
+.compare-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:1rem 0;}
+.pipeline-step{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;}
+.pipeline-step:hover{border-color:var(--p400);box-shadow:0 0 0 3px var(--p100);transform:translateY(-2px);}
+.pipeline-step.selected{border-color:var(--p500);background:var(--p50);box-shadow:0 0 0 3px var(--p100);}
+.pipeline-num{width:22px;height:22px;border-radius:50%;background:var(--p600);color:white;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;}
+.pipeline-label{font-size:12px;font-weight:600;color:var(--t1);}
+.pipeline-sub{font-size:11px;color:var(--t3);margin-top:3px;}
+.pipeline-detail{background:var(--p50);border:1px solid var(--p200);border-radius:10px;padding:1rem 1.2rem;margin-top:8px;display:none;}
+.pipeline-detail.visible{display:block;}
+.pipeline-detail h4{font-size:14px;font-weight:600;color:var(--p700);margin-bottom:6px;}
+.pipeline-detail p{font-size:13px;color:var(--t2);line-height:1.6;}
+.engine-steps{display:flex;align-items:stretch;gap:0;margin:1rem 0;}
+.engine-step{flex:1;background:var(--white);border:1px solid var(--border);padding:16px 10px;text-align:center;position:relative;cursor:pointer;transition:all 0.15s;}
+.engine-step:first-child{border-radius:10px 0 0 10px;}
+.engine-step:last-child{border-radius:0 10px 10px 0;}
+.engine-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--p400);font-size:16px;z-index:1;background:var(--bg);padding:0 2px;}
+.engine-step:last-child::after{display:none;}
+.engine-step:hover{background:var(--p50);z-index:1;}
+.engine-step.hl{background:var(--p100);border-color:var(--p300,var(--p400));}
+.engine-icon{font-size:20px;margin-bottom:6px;}
+.engine-label{font-size:11px;font-weight:600;color:var(--t1);}
+.engine-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.concept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0;}
+.concept-chip{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:8px;}
+.concept-chip:hover{border-color:var(--p400);background:var(--p50);}
+.tooltip-wrap{position:relative;display:inline-block;}
+.tooltip{position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:var(--t1);color:white;font-size:12px;padding:6px 12px;border-radius:7px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.2s;z-index:10;}
+.tooltip-wrap:hover .tooltip{opacity:1;}
+.divider{height:1px;background:var(--border);margin:1.5rem 0;}
+.info-banner{background:var(--b50);border:1px solid var(--b100);border-radius:10px;padding:12px 16px;display:flex;gap:10px;align-items:flex-start;margin:1rem 0;}
+.info-banner-icon{font-size:16px;flex-shrink:0;}
+.info-banner-text{font-size:13px;color:var(--b700);line-height:1.5;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--p200);border-radius:4px;}
+
+/* ── NEW: Canvas animation cards ── */
+.theme-toggle{
+  width:42px;height:24px;border-radius:12px;border:none;cursor:pointer;
+  position:relative;transition:background 0.3s;flex-shrink:0;
+  background:var(--p100);
+  outline:none;
+}
+.theme-toggle .tt-track{
+  position:absolute;inset:0;border-radius:12px;
+  border:1.5px solid var(--p200);
+  transition:all 0.3s;
+}
+.theme-toggle .tt-thumb{
+  position:absolute;top:3px;left:3px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--p600);
+  transition:transform 0.3s, background 0.3s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;line-height:1;
+}
+[data-theme="dark"] .theme-toggle{background:#2d2850;}
+[data-theme="dark"] .theme-toggle .tt-track{border-color:#3d3870;}
+[data-theme="dark"] .theme-toggle .tt-thumb{transform:translateX(18px);background:var(--p500);}
+.theme-toggle-wrap{display:flex;align-items:center;gap:8px;margin-left:12px;}
+.theme-toggle-label{font-size:12px;font-weight:500;color:var(--t2);white-space:nowrap;transition:color 0.3s;}
+.anim-section-title{font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.anim-section-desc{font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.5;}
+.canvas-card{background:#0f0e1a;border-radius:12px;overflow:hidden;margin:1rem 0;}
+.canvas-card canvas{display:block;width:100%;}
+.canvas-controls{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;}
+.cbtn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);font-family:inherit;font-size:11.5px;font-weight:500;padding:5px 13px;border-radius:6px;cursor:pointer;transition:all 0.15s;}
+.cbtn:hover{background:rgba(108,93,211,0.45);border-color:var(--p400);}
+.cbtn.on{background:rgba(108,93,211,0.4);border-color:var(--p500);color:#fff;}
+.canvas-tag{font-size:10.5px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;margin-left:auto;}
+.anim-legend{display:flex;gap:14px;flex-wrap:wrap;padding:4px 0;}
+.aleg{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.5);}
+.aleg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HEADER -->
+<div class="header">
+  <svg class="hdr-pattern" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;">
+    <defs><pattern id="hgrid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0L0 0 0 32" fill="none" stroke="rgba(108,93,211,0.055)" stroke-width="0.7"/></pattern></defs>
+    <rect width="100%" height="100%" fill="url(#hgrid)"/>
+    <circle cx="96"  cy="16" r="2.2" fill="rgba(108,93,211,0.13)"/>
+    <circle cx="288" cy="48" r="1.8" fill="rgba(37,99,235,0.1)"/>
+    <circle cx="480" cy="16" r="2.2" fill="rgba(108,93,211,0.1)"/>
+    <circle cx="640" cy="40" r="1.8" fill="rgba(37,99,235,0.09)"/>
+    <circle cx="800" cy="20" r="2"   fill="rgba(108,93,211,0.1)"/>
+    <circle cx="960" cy="44" r="1.6" fill="rgba(37,99,235,0.08)"/>
+    <line x1="96"  y1="16"  x2="288" y2="48"  stroke="rgba(108,93,211,0.06)" stroke-width="0.8"/>
+    <line x1="288" y1="48"  x2="480" y2="16"  stroke="rgba(37,99,235,0.05)"  stroke-width="0.8"/>
+    <line x1="640" y1="40"  x2="800" y2="20"  stroke="rgba(108,93,211,0.06)" stroke-width="0.8"/>
+    <line x1="800" y1="20"  x2="960" y2="44"  stroke="rgba(37,99,235,0.05)"  stroke-width="0.8"/>
+  </svg>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">FE</div>
+      <div style="display:flex;flex-direction:column;gap:1px;">
+        <span style="font-size:14.5px;font-weight:600;color:var(--t1);line-height:1;">Frontend Architecture Hub</span>
+        <span style="font-size:10px;font-weight:400;color:var(--t3);letter-spacing:0.03em;line-height:1;">Visual Learning Platform</span>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button onclick="switchMain('react')" id="main-react" class="active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="2.139" fill="#61DAFB"/><ellipse cx="12" cy="12" rx="10" ry="3.9" stroke="#61DAFB" stroke-width="1.2" fill="none"/><ellipse cx="12" cy="12" rx="10" ry="3.9" stroke="#61DAFB" stroke-width="1.2" fill="none" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="3.9" stroke="#61DAFB" stroke-width="1.2" fill="none" transform="rotate(120 12 12)"/></svg></span>React</button>
+      <button onclick="switchMain('graphql')" id="main-graphql"><span class="nav-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.25L2.25 7.875v8.25L12 21.75l9.75-5.625v-8.25L12 2.25z" fill="none" stroke="#E535AB" stroke-width="1.4"/><circle cx="12" cy="2.25" r="1.6" fill="#E535AB"/><circle cx="2.25" cy="7.875" r="1.6" fill="#E535AB"/><circle cx="2.25" cy="16.125" r="1.6" fill="#E535AB"/><circle cx="12" cy="21.75" r="1.6" fill="#E535AB"/><circle cx="21.75" cy="16.125" r="1.6" fill="#E535AB"/><circle cx="21.75" cy="7.875" r="1.6" fill="#E535AB"/><line x1="12" y1="2.25" x2="12" y2="21.75" stroke="#E535AB" stroke-width="1.1"/></svg></span>GraphQL</button>
+      <button onclick="switchMain('angular')" id="main-angular"><span class="nav-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.25L3 5.25l1.35 11.7L12 21.75l7.65-4.8L21 5.25z" fill="#DD0031"/><path d="M12 2.25v19.5l7.65-4.8L21 5.25z" fill="#C3002F"/><path d="M12 6.3L8.1 15.6h1.5l.825-2.1h3.15l.825 2.1h1.5L12 6.3zm0 2.55l1.2 3.15h-2.4z" fill="white"/></svg></span>Angular</button>
+      <button onclick="switchMain('vue')" id="main-vue"><span class="nav-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 3h3.5L12 15.5 18.5 3H22L12 21z" fill="#41B883"/><path d="M6.5 3h3L12 9.5 14.5 3h3L12 15.5z" fill="#35495E"/></svg></span>Vue.js</button>
+      <button onclick="switchMain('browser')" id="main-browser"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9.5" stroke="#4285F4" stroke-width="1.3"/><ellipse cx="12" cy="12" rx="4" ry="9.5" stroke="#4285F4" stroke-width="1.3"/><line x1="2.5" y1="9" x2="21.5" y2="9" stroke="#4285F4" stroke-width="1.3"/><line x1="2.5" y1="15" x2="21.5" y2="15" stroke="#4285F4" stroke-width="1.3"/></svg></span>Browser</button>
+      <button onclick="switchMain('engine')" id="main-engine"><span class="nav-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="2" fill="#F7DF1E"/><path d="M7.5 16.8c.4.7 1 1.2 2 1.2 1.1 0 1.8-.55 1.8-1.65V10.5H9.7v5.8c0 .45-.18.7-.6.7-.38 0-.63-.25-.85-.55l-1.35.95zM13.5 16.65c.5.85 1.3 1.35 2.5 1.35 1.3 0 2.2-.65 2.2-1.85 0-1.1-.65-1.6-1.75-2.05l-.45-.2c-.55-.25-.78-.4-.78-.8 0-.33.25-.58.65-.58.38 0 .65.17.9.58l1.3-.85c-.55-.95-1.3-1.3-2.2-1.3-1.35 0-2.2.87-2.2 2 0 1.08.63 1.6 1.55 2l.45.2c.65.28.98.45.98.9 0 .38-.35.65-.9.65-.65 0-1.05-.33-1.35-.85l-1.4.8z" fill="#333"/></svg></span>JS Engine</button>
+      <button onclick="switchMain('es6')" id="main-es6"><span class="nav-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="2" fill="#F7DF1E"/><path d="M5.5 15.5h4.2v1.5H4V9h5.6v1.5H5.5v1.8h3.7v1.4H5.5zM10.8 15.1l1.4-.85c.28.55.7.9 1.35.9.6 0 .95-.28.95-.78 0-.55-.38-.75-1.05-1.05l-.38-.16c-1.05-.45-1.75-1.02-1.75-2.2 0-1.1.83-1.93 2.13-1.93.93 0 1.6.32 2.07 1.17l-1.33.85c-.25-.45-.52-.63-.88-.63-.38 0-.62.24-.62.57 0 .4.24.56.8.8l.38.16c1.23.53 1.93 1.07 1.93 2.28 0 1.3-1.02 2.02-2.4 2.02-1.34 0-2.2-.64-2.64-1.65z" fill="#333"/></svg></span>ES6</button>
+    </nav>
+    <div class="theme-toggle-wrap">
+      <span class="theme-toggle-label" id="theme-label">Light</span>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <div class="tt-track"></div>
+        <div class="tt-thumb" id="tt-thumb">☀️</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="content">
+
+<!-- ═══════════ REACT TAB ═══════════ -->
+<div class="tab-panel active" id="panel-react">
+  <div class="hero" style="background:linear-gradient(135deg,#6c5dd3,#2563eb);">
+    <div class="hero-tag">⚛ Ecosystem</div>
+    <h1>React Architecture</h1>
+    <p>Understand how React works internally — from component trees to state management, middleware, and data flow.</p>
+  </div>
+
+  <!-- Existing: Component Architecture -->
+  <div class="card" id="react-arch">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ede9fe;">⚛️</div>
+      <div>
+        <div class="card-title">Component Architecture</div>
+        <div class="card-desc">React builds a virtual DOM tree of components. When state changes, React reconciles the virtual DOM with the real DOM efficiently.</div>
+      </div>
+    </div>
+    <div class="flow-diagram">
+      <div class="flow-title">React Component Lifecycle</div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <div class="flow-steps">
+          <div style="display:flex;"><div class="flow-node node-purple">App Component (Root)</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-blue">Child Components</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-teal">Render Phase</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-green">Virtual DOM Diff</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-orange">DOM Update</div></div>
+        </div>
+        <div style="flex:1;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border);font-size:12px;color:var(--t2);line-height:1.8;">
+          <div style="font-weight:600;color:var(--t1);margin-bottom:8px;font-size:13px;">Key Lifecycle Hooks</div>
+          <div>🔵 <b>useState</b> — local state management</div>
+          <div>🟣 <b>useEffect</b> — side effects &amp; lifecycle</div>
+          <div>🟢 <b>useContext</b> — global context access</div>
+          <div>🟠 <b>useRef</b> — direct DOM access</div>
+          <div>🔴 <b>useMemo</b> — memoized values</div>
+          <div>🔷 <b>useCallback</b> — stable functions</div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchSubTab('lifecycle',this)">Lifecycle</button>
+      <button class="tab-btn" onclick="switchSubTab('mount',this)">Mount</button>
+      <button class="tab-btn" onclick="switchSubTab('update',this)">Update</button>
+      <button class="tab-btn" onclick="switchSubTab('unmount',this)">Unmount</button>
+    </div>
+    <div id="subtab-lifecycle">
+      <div class="code-block"><span class="code-keyword">const</span> <span class="code-func">MyComponent</span> = () => {<br>&nbsp;&nbsp;<span class="code-keyword">const</span> [count, setCount] = <span class="code-func">useState</span>(<span class="code-string">0</span>);<br>&nbsp;&nbsp;<span class="code-func">useEffect</span>(() => {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// Runs after every render</span><br>&nbsp;&nbsp;&nbsp;&nbsp;document.title = <span class="code-string">`Count: ${count}`</span>;<br>&nbsp;&nbsp;}, [count]);<br>&nbsp;&nbsp;<span class="code-keyword">return</span> &lt;button onClick={() => <span class="code-func">setCount</span>(c => c+<span class="code-string">1</span>)}&gt;{count}&lt;/button&gt;;<br>};</div>
+    </div>
+    <div id="subtab-mount" style="display:none;">
+      <div class="code-block"><span class="code-comment">// Runs once on mount</span><br><span class="code-func">useEffect</span>(() => {<br>&nbsp;&nbsp;<span class="code-func">fetchData</span>();<br>&nbsp;&nbsp;<span class="code-keyword">return</span> () => <span class="code-func">cleanup</span>();<br>}, []);</div>
+    </div>
+    <div id="subtab-update" style="display:none;">
+      <div class="code-block"><span class="code-comment">// Runs when 'userId' changes</span><br><span class="code-func">useEffect</span>(() => {<br>&nbsp;&nbsp;<span class="code-func">loadUser</span>(userId);<br>}, [userId]);</div>
+    </div>
+    <div id="subtab-unmount" style="display:none;">
+      <div class="code-block"><span class="code-func">useEffect</span>(() => {<br>&nbsp;&nbsp;<span class="code-keyword">const</span> timer = <span class="code-func">setInterval</span>(..., <span class="code-string">1000</span>);<br>&nbsp;&nbsp;<span class="code-keyword">return</span> () => <span class="code-func">clearInterval</span>(timer);<br>}, []);</div>
+    </div>
+  </div>
+
+  <!-- Existing: Redux -->
+  <div class="card" id="react-redux">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ede9fe;">🏪</div>
+      <div>
+        <div class="card-title">React + Redux</div>
+        <div class="card-desc">Redux provides predictable state management using a single store, pure reducers, and dispatched actions.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="flow-diagram">
+        <div class="flow-title">Redux Data Flow</div>
+        <div class="flow-steps">
+          <div style="display:flex;"><div class="flow-node node-purple">🖥 React Component</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-blue">⚡ Dispatch Action</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-orange">🔀 Middleware</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-teal">⚙ Reducer</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-green">🗄 Store Update</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-pink">🔄 Re-render</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:1rem;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Redux Concepts</div>
+          <div class="concept-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="concept-chip tooltip-wrap" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="tooltip">Central state container</span><div style="font-size:18px;">🗄</div><div style="font-size:12px;font-weight:600;">Store</div><div style="font-size:11px;color:var(--t3);">Single source of truth</div></div>
+            <div class="concept-chip tooltip-wrap" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="tooltip">Pure state transformer</span><div style="font-size:18px;">⚙</div><div style="font-size:12px;font-weight:600;">Reducer</div><div style="font-size:11px;color:var(--t3);">Pure function (state, action)</div></div>
+            <div class="concept-chip tooltip-wrap" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="tooltip">Describes what happened</span><div style="font-size:18px;">⚡</div><div style="font-size:12px;font-weight:600;">Action</div><div style="font-size:11px;color:var(--t3);">{ type, payload }</div></div>
+            <div class="concept-chip tooltip-wrap" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="tooltip">Sends actions to the store</span><div style="font-size:18px;">📡</div><div style="font-size:12px;font-weight:600;">Dispatch</div><div style="font-size:11px;color:var(--t3);">Triggers state change</div></div>
+          </div>
+        </div>
+        <div class="code-block" style="font-size:11px;"><span class="code-keyword">const</span> addTodo = (text) => ({<br>&nbsp;&nbsp;type: <span class="code-string">'ADD_TODO'</span>, payload: text<br>});<br><br><span class="code-keyword">const</span> todos = (state=[], action) => {<br>&nbsp;&nbsp;<span class="code-keyword">switch</span>(action.type) {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">case</span> <span class="code-string">'ADD_TODO'</span>:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> [...state, action.payload];<br>&nbsp;&nbsp;}<br>};</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Middleware — Redux Thunk vs Saga</div>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h4><span style="font-size:16px;">🌊</span> Redux Thunk <span class="badge badge-blue">Simple</span></h4>
+        <div class="compare-item"><div class="compare-dot" style="background:#3b82f6;"></div>Action creators return functions</div>
+        <div class="compare-item"><div class="compare-dot" style="background:#3b82f6;"></div>Built into Redux Toolkit by default</div>
+        <div class="compare-item"><div class="compare-dot" style="background:#3b82f6;"></div>Good for simple async operations</div>
+        <div class="compare-item"><div class="compare-dot" style="background:#3b82f6;"></div>Less boilerplate code</div>
+        <div class="code-block" style="font-size:11px;margin-top:10px;"><span class="code-keyword">const</span> fetchUser = (id) =><br>&nbsp;&nbsp;<span class="code-keyword">async</span> (dispatch) => {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> user = <span class="code-keyword">await</span> <span class="code-func">api</span>(id);<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-func">dispatch</span>({ type: <span class="code-string">'SET_USER'</span>, user });<br>&nbsp;&nbsp;};</div>
+      </div>
+      <div class="compare-card">
+        <h4><span style="font-size:16px;">⚗</span> Redux Saga <span class="badge badge-orange">Advanced</span></h4>
+        <div class="compare-item"><div class="compare-dot" style="background:#f97316;"></div>Uses ES6 generator functions</div>
+        <div class="compare-item"><div class="compare-dot" style="background:#f97316;"></div>Handles complex async flows</div>
+        <div class="compare-item"><div class="compare-dot" style="background:#f97316;"></div>Highly testable side effects</div>
+        <div class="compare-item"><div class="compare-dot" style="background:#f97316;"></div>More boilerplate, more power</div>
+        <div class="code-block" style="font-size:11px;margin-top:10px;"><span class="code-keyword">function*</span> <span class="code-func">fetchUserSaga</span>() {<br>&nbsp;&nbsp;<span class="code-keyword">const</span> {id} = <span class="code-keyword">yield take</span>(<span class="code-string">'FETCH'</span>);<br>&nbsp;&nbsp;<span class="code-keyword">const</span> user = <span class="code-keyword">yield call</span>(api, id);<br>&nbsp;&nbsp;<span class="code-keyword">yield put</span>({ type: <span class="code-string">'SET'</span>, user });<br>}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing: Zustand -->
+  <div class="card" id="react-zustand">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ecfdf5;">🐻</div>
+      <div>
+        <div class="card-title">React + Zustand</div>
+        <div class="card-desc">Zustand is a lightweight state management solution — no boilerplate, no reducers, just a simple store with actions.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="flow-diagram">
+        <div class="flow-title">Zustand Flow</div>
+        <div class="flow-steps">
+          <div style="display:flex;"><div class="flow-node node-purple">🖥 Component</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-green">🐻 Zustand Store</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-teal">💾 State Update</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-pink">🔄 Re-render</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="code-block" style="font-size:11px;"><span class="code-keyword">const</span> useStore = <span class="code-func">create</span>((set) => ({<br>&nbsp;&nbsp;count: <span class="code-string">0</span>,<br>&nbsp;&nbsp;inc: () => <span class="code-func">set</span>(s => ({<br>&nbsp;&nbsp;&nbsp;&nbsp;count: s.count + <span class="code-string">1</span><br>&nbsp;&nbsp;})),<br>}));<br><br><span class="code-keyword">const</span> {count, inc} = <span class="code-func">useStore</span>();</div>
+        <div class="info-banner"><div class="info-banner-icon">💡</div><div class="info-banner-text">Zustand uses React's <b>useSyncExternalStore</b> under the hood, giving it fine-grained re-render control without a Provider wrapping the app.</div></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Redux vs Zustand at a glance</div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--bg);"><th style="text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--t3);font-weight:600;">Feature</th><th style="text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--p600);font-weight:600;">Redux</th><th style="text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--success);font-weight:600;">Zustand</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--t2);">Setup</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Store, Reducers, Actions</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">One function call</td></tr>
+          <tr style="background:var(--bg);"><td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--t2);">Boilerplate</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">High</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Minimal</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid var(--border);color:var(--t2);">DevTools</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Excellent</td><td style="padding:8px 12px;border-bottom:1px solid var(--border);">Good</td></tr>
+          <tr style="background:var(--bg);"><td style="padding:8px 12px;color:var(--t2);">Bundle size</td><td style="padding:8px 12px;">~45kb</td><td style="padding:8px 12px;">~1kb</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NEW: React Animated Architecture Diagram -->
+  <div class="card" id="react-anim">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ede9fe;">🎬</div>
+      <div>
+        <div class="card-title">React Ecosystem — Animated Architecture</div>
+        <div class="card-desc">Live animation showing how components, state, virtual DOM, and the Redux pipeline interact. Click the buttons to trigger flows.</div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <canvas id="cvs-react" height="340"></canvas>
+      <div class="canvas-controls">
+        <button class="cbtn" onclick="reactAnim('render')">⚛ Component Render</button>
+        <button class="cbtn" onclick="reactAnim('redux')">🏪 Redux Flow</button>
+        <button class="cbtn" onclick="reactAnim('zustand')">🐻 Zustand Flow</button>
+        <div class="anim-legend">
+          <div class="aleg"><div class="aleg-dot" style="background:#8b7ae8;"></div>Components</div>
+          <div class="aleg"><div class="aleg-dot" style="background:#60a5fa;"></div>Virtual DOM</div>
+          <div class="aleg"><div class="aleg-dot" style="background:#34d399;"></div>State</div>
+          <div class="aleg"><div class="aleg-dot" style="background:#f59e0b;"></div>Action/Event</div>
+        </div>
+        <div class="canvas-tag">React Reconciler</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ GRAPHQL TAB ═══════════ -->
+<div class="tab-panel" id="panel-graphql">
+  <div class="hero" style="background:linear-gradient(135deg,#e11d48,#9333ea);">
+    <div class="hero-tag">⬡ GraphQL</div>
+    <h1>React + GraphQL</h1>
+    <p>Explore how Apollo Client connects your React app to a GraphQL API — with caching, queries, mutations, and subscriptions.</p>
+  </div>
+  <div class="card" id="gql-apollo">
+    <div class="card-header">
+      <div class="card-icon" style="background:#fce7f3;">🚀</div>
+      <div>
+        <div class="card-title">Apollo Client Architecture</div>
+        <div class="card-desc">Apollo Client sits between your React components and the GraphQL server, handling caching, queries, and mutations automatically.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="flow-diagram">
+        <div class="flow-title">Request Lifecycle</div>
+        <div class="flow-steps">
+          <div style="display:flex;"><div class="flow-node node-purple">⚛ React Component</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-pink">🚀 Apollo Client</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-blue">🔵 In-Memory Cache?</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-orange">📡 Network Request</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-teal">⬡ GraphQL Server</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-green">🗄 Database</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Apollo Client Layers</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--p50);border:1px solid var(--p200);border-radius:10px;padding:12px;border-left:4px solid var(--p500);"><div style="font-size:12px;font-weight:600;color:var(--p700);">🔍 Query Layer</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">useQuery, useLazyQuery — fetch &amp; watch data</div></div>
+          <div style="background:#fdf2f8;border:1px solid #f9a8d4;border-radius:10px;padding:12px;border-left:4px solid #ec4899;"><div style="font-size:12px;font-weight:600;color:#831843;">✏ Mutation Layer</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">useMutation — create, update, delete data</div></div>
+          <div style="background:var(--b50);border:1px solid var(--b100);border-radius:10px;padding:12px;border-left:4px solid var(--b500);"><div style="font-size:12px;font-weight:600;color:var(--b700);">⚡ Subscription Layer</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">useSubscription — real-time via WebSocket</div></div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px;border-left:4px solid #10b981;"><div style="font-size:12px;font-weight:600;color:#065f46;">🧠 Cache Layer</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">Normalized cache — avoids duplicate fetches</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="code-block"><span class="code-comment">// Query Example with Apollo</span><br><span class="code-keyword">const</span> GET_USER = <span class="code-func">gql</span><span class="code-string">`query GetUser($id: ID!) { user(id: $id) { name, email } }`</span>;<br><span class="code-keyword">const</span> { loading, error, data } = <span class="code-func">useQuery</span>(GET_USER, { variables: { id: <span class="code-string">'123'</span> } });</div>
+  </div>
+  <div class="card" id="gql-concepts">
+    <div class="card-title" style="margin-bottom:1rem;">GraphQL Core Concepts</div>
+    <div class="concept-grid">
+      <div class="concept-chip" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="font-size:18px;">🔍</div><div style="font-size:13px;font-weight:600;">Query</div><div style="font-size:11px;color:var(--t3);line-height:1.4;">Fetch exactly the data you need</div></div>
+      <div class="concept-chip" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="font-size:18px;">✏</div><div style="font-size:13px;font-weight:600;">Mutation</div><div style="font-size:11px;color:var(--t3);line-height:1.4;">Create, update, delete data</div></div>
+      <div class="concept-chip" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="font-size:18px;">⚡</div><div style="font-size:13px;font-weight:600;">Subscription</div><div style="font-size:11px;color:var(--t3);line-height:1.4;">Real-time updates via WebSocket</div></div>
+      <div class="concept-chip" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="font-size:18px;">📐</div><div style="font-size:13px;font-weight:600;">Schema</div><div style="font-size:11px;color:var(--t3);line-height:1.4;">Type-safe contract between client &amp; server</div></div>
+      <div class="concept-chip" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="font-size:18px;">🔧</div><div style="font-size:13px;font-weight:600;">Resolver</div><div style="font-size:11px;color:var(--t3);line-height:1.4;">Server function that returns field data</div></div>
+      <div class="concept-chip" style="flex-direction:column;align-items:flex-start;gap:4px;"><div style="font-size:18px;">🧠</div><div style="font-size:13px;font-weight:600;">Cache</div><div style="font-size:11px;color:var(--t3);line-height:1.4;">Normalized client-side data store</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ANGULAR TAB ═══════════ -->
+<div class="tab-panel" id="panel-angular">
+  <div class="hero" style="background:linear-gradient(135deg,#dc2626,#ea580c);">
+    <div class="hero-tag">🅰 Framework</div>
+    <h1>Angular Ecosystem</h1>
+    <p>Angular is an opinionated full framework with modules, dependency injection, RxJS, and NgRx for enterprise-scale apps.</p>
+  </div>
+  <div class="card" id="ng-arch">
+    <div class="card-header">
+      <div class="card-icon" style="background:#fef2f2;">🅰️</div>
+      <div>
+        <div class="card-title">Angular Architecture</div>
+        <div class="card-desc">Angular uses modules, components, services, and dependency injection — forming a complete MVC-style framework.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="flow-diagram">
+        <div class="flow-title">NgRx State Flow</div>
+        <div class="flow-steps">
+          <div style="display:flex;"><div class="flow-node node-orange">🅰 Component</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-blue">🔧 Service (DI)</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-purple">🏪 NgRx Store</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-pink">⚡ Effects</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-teal">⚙ Reducer</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-green">💾 State Update</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Angular Core Building Blocks</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#9a3412;">📦 NgModule</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">Groups components, directives, pipes and providers</div></div>
+          <div style="background:var(--b50);border:1px solid var(--b100);border-radius:10px;padding:12px;"><div style="font-size:12px;font-weight:600;color:var(--b700);">🔧 Dependency Injection</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">Services are injected into components via constructor</div></div>
+          <div style="background:#fdf2f8;border:1px solid #f9a8d4;border-radius:10px;padding:12px;"><div style="font-size:12px;font-weight:600;color:#831843;">🌊 RxJS Observables</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">Reactive streams power all async operations</div></div>
+          <div style="background:var(--p50);border:1px solid var(--p200);border-radius:10px;padding:12px;"><div style="font-size:12px;font-weight:600;color:var(--p700);">⚡ NgRx Effects</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">Side effect handler — similar to Redux Saga</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="code-block" style="margin-top:1rem;">@<span class="code-func">Injectable</span>({ providedIn: <span class="code-string">'root'</span> })<br><span class="code-keyword">export class</span> <span class="code-func">UserService</span> {<br>&nbsp;&nbsp;<span class="code-keyword">constructor</span>(<span class="code-keyword">private</span> http: HttpClient) {}<br>&nbsp;&nbsp;<span class="code-func">getUser</span>(id: string): Observable&lt;User&gt; {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> <span class="code-keyword">this</span>.http.<span class="code-func">get</span>&lt;User&gt;(<span class="code-string">`/api/users/${id}`</span>);<br>&nbsp;&nbsp;}<br>}</div>
+  </div>
+  <!-- NEW Angular Animation -->
+  <div class="card" id="ng-anim">
+    <div class="card-header">
+      <div class="card-icon" style="background:#fef2f2;">🎬</div>
+      <div>
+        <div class="card-title">Angular Architecture — Animated Diagram</div>
+        <div class="card-desc">See how Components, Services, DI, RxJS streams, and NgRx state management connect and flow data through an Angular application.</div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <canvas id="cvs-angular" height="340"></canvas>
+      <div class="canvas-controls">
+        <button class="cbtn" onclick="angularAnim('dispatch')">Dispatch Action</button>
+        <button class="cbtn" onclick="angularAnim('http')">HTTP Effect</button>
+        <button class="cbtn" onclick="angularAnim('rxjs')">RxJS Stream</button>
+        <div class="canvas-tag">Angular + NgRx</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ VUE TAB ═══════════ -->
+<div class="tab-panel" id="panel-vue">
+  <div class="hero" style="background:linear-gradient(135deg,#059669,#0891b2);">
+    <div class="hero-tag">💚 Vue.js</div>
+    <h1>Vue.js Ecosystem</h1>
+    <p>Vue's progressive architecture with its reactive system, Pinia state management, and Composition API make it uniquely approachable.</p>
+  </div>
+  <div class="card" id="vue-arch">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ecfdf5;">💚</div>
+      <div>
+        <div class="card-title">Vue Reactivity System</div>
+        <div class="card-desc">Vue 3 uses Proxy-based reactivity. When reactive data changes, Vue automatically tracks dependencies and updates the DOM.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="flow-diagram">
+        <div class="flow-title">Pinia State Flow</div>
+        <div class="flow-steps">
+          <div style="display:flex;"><div class="flow-node node-green">💚 Component</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-teal">🍍 Pinia Store</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-blue">💡 Reactive State</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-purple">⚙ Computed Props</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-orange">🔄 DOM Update</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="code-block" style="font-size:11px;"><span class="code-keyword">export const</span> useCounterStore = <span class="code-func">defineStore</span>(<span class="code-string">'counter'</span>, {<br>&nbsp;&nbsp;state: () => ({ count: <span class="code-string">0</span> }),<br>&nbsp;&nbsp;getters: { doubled: (s) => s.count * <span class="code-string">2</span> },<br>&nbsp;&nbsp;actions: { <span class="code-func">increment</span>() { <span class="code-keyword">this</span>.count++ } },<br>});</div>
+        <div class="info-banner"><div class="info-banner-icon">🍍</div><div class="info-banner-text"><b>Pinia</b> replaced Vuex as Vue's official state manager. It's simpler, fully typed, and supports Vue DevTools.</div></div>
+      </div>
+    </div>
+  </div>
+  <!-- NEW Vue Animation -->
+  <div class="card" id="vue-anim">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ecfdf5;">🎬</div>
+      <div>
+        <div class="card-title">Vue.js Ecosystem — Animated Diagram</div>
+        <div class="card-desc">Watch how Vue's Proxy-based reactivity, computed properties, watchers, and Pinia store all respond to state changes in real time.</div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <canvas id="cvs-vue" height="320"></canvas>
+      <div class="canvas-controls">
+        <button class="cbtn" onclick="vueAnim('reactive')">Set Reactive Data</button>
+        <button class="cbtn" onclick="vueAnim('computed')">Computed Update</button>
+        <button class="cbtn" onclick="vueAnim('pinia')">Pinia Action</button>
+        <button class="cbtn" onclick="vueAnim('watcher')">Watch Trigger</button>
+        <div class="canvas-tag">Vue 3 Reactivity</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ BROWSER TAB ═══════════ -->
+<div class="tab-panel" id="panel-browser">
+  <div class="hero" style="background:linear-gradient(135deg,#0284c7,#0891b2);">
+    <div class="hero-tag">🌐 Browser</div>
+    <h1>Browser Internals</h1>
+    <p>What happens from URL entry to the first painted pixel — the complete rendering pipeline explained visually.</p>
+  </div>
+  <!-- Existing pipeline -->
+  <div class="card" id="browser-pipeline">
+    <div class="card-title" style="margin-bottom:4px;">Rendering Pipeline</div>
+    <div class="card-desc" style="margin-bottom:1.2rem;">Click any step to learn what happens inside the browser at that stage.</div>
+    <div class="pipeline">
+      <div class="pipeline-step" onclick="selectPipeline(0)" id="ps-0"><div class="pipeline-num">1</div><div class="pipeline-label">DNS Lookup</div><div class="pipeline-sub">URL → IP</div></div>
+      <div class="pipeline-step" onclick="selectPipeline(1)" id="ps-1"><div class="pipeline-num">2</div><div class="pipeline-label">HTTP Request</div><div class="pipeline-sub">Fetch HTML</div></div>
+      <div class="pipeline-step" onclick="selectPipeline(2)" id="ps-2"><div class="pipeline-num">3</div><div class="pipeline-label">HTML Parse</div><div class="pipeline-sub">Build DOM</div></div>
+      <div class="pipeline-step" onclick="selectPipeline(3)" id="ps-3"><div class="pipeline-num">4</div><div class="pipeline-label">CSS Parse</div><div class="pipeline-sub">Build CSSOM</div></div>
+      <div class="pipeline-step" onclick="selectPipeline(4)" id="ps-4"><div class="pipeline-num">5</div><div class="pipeline-label">Render Tree</div><div class="pipeline-sub">DOM + CSSOM</div></div>
+      <div class="pipeline-step" onclick="selectPipeline(5)" id="ps-5"><div class="pipeline-num">6</div><div class="pipeline-label">Layout</div><div class="pipeline-sub">Geometry calc</div></div>
+      <div class="pipeline-step" onclick="selectPipeline(6)" id="ps-6"><div class="pipeline-num">7</div><div class="pipeline-label">Paint</div><div class="pipeline-sub">Draw pixels</div></div>
+      <div class="pipeline-step" onclick="selectPipeline(7)" id="ps-7"><div class="pipeline-num">8</div><div class="pipeline-label">JS Execute</div><div class="pipeline-sub">Run scripts</div></div>
+    </div>
+    <div id="pipeline-detail" class="pipeline-detail"></div>
+  </div>
+  <div class="card" id="browser-render">
+    <div class="card-title" style="margin-bottom:1rem;">DOM + CSSOM → Render Tree</div>
+    <div class="flow-diagram">
+      <div style="display:flex;gap:2rem;align-items:flex-start;justify-content:center;flex-wrap:wrap;">
+        <div><div class="flow-title" style="text-align:center;">HTML</div><div class="flow-steps"><div style="display:flex;"><div class="flow-node node-blue" style="min-width:120px;">&lt;html&gt;</div></div><div class="flow-arrow" style="margin-left:60px;"></div><div style="display:flex;"><div class="flow-node node-blue" style="min-width:120px;">&lt;body&gt;</div></div><div class="flow-arrow" style="margin-left:60px;"></div><div style="display:flex;"><div class="flow-node node-blue" style="min-width:120px;">DOM Tree ✓</div></div></div></div>
+        <div style="display:flex;align-items:center;font-size:24px;color:var(--p400);padding-top:40px;">+</div>
+        <div><div class="flow-title" style="text-align:center;">CSS</div><div class="flow-steps"><div style="display:flex;"><div class="flow-node node-pink" style="min-width:120px;">.class {}</div></div><div class="flow-arrow" style="margin-left:60px;"></div><div style="display:flex;"><div class="flow-node node-pink" style="min-width:120px;">Cascade</div></div><div class="flow-arrow" style="margin-left:60px;"></div><div style="display:flex;"><div class="flow-node node-pink" style="min-width:120px;">CSSOM ✓</div></div></div></div>
+        <div style="display:flex;align-items:center;font-size:24px;color:var(--p400);padding-top:40px;">=</div>
+        <div><div class="flow-title" style="text-align:center;">Result</div><div class="flow-steps"><div style="display:flex;"><div class="flow-node node-purple" style="min-width:120px;">Render Tree</div></div><div class="flow-arrow" style="margin-left:60px;"></div><div style="display:flex;"><div class="flow-node node-teal" style="min-width:120px;">Layout</div></div><div class="flow-arrow" style="margin-left:60px;"></div><div style="display:flex;"><div class="flow-node node-green" style="min-width:120px;">🖥 Screen ✓</div></div></div></div>
+      </div>
+    </div>
+  </div>
+  <!-- Existing middleware section -->
+  <div class="card" id="browser-middleware">
+    <div class="card-header">
+      <div class="card-icon" style="background:#fff7ed;">🔀</div>
+      <div>
+        <div class="card-title">Middleware — Visual Explainer</div>
+        <div class="card-desc">Middleware intercepts actions between dispatch and the reducer — enabling logging, async calls, analytics, and more.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:2rem;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+        <button style="background:linear-gradient(135deg,var(--p600),var(--b600));color:white;padding:10px 28px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;font-family:inherit;" onclick="animateMiddleware()">🚀 Dispatch Action</button>
+        <div style="width:2px;height:24px;background:var(--p200);position:relative;"><div style="position:absolute;bottom:-5px;left:-4px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--p200);"></div></div>
+        <div id="mw-layer1" style="background:#fff7ed;border:2px solid #fed7aa;border-radius:10px;padding:10px 28px;font-size:13px;font-weight:500;min-width:220px;text-align:center;cursor:pointer;transition:all 0.2s;border-left:6px solid #f97316;"><span style="font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7;display:block;margin-bottom:2px;color:#9a3412;">Middleware 1</span>Logger — logs every action</div>
+        <div style="width:2px;height:24px;background:#fed7aa;position:relative;"><div style="position:absolute;bottom:-5px;left:-4px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #fed7aa;"></div></div>
+        <div id="mw-layer2" style="background:#fdf2f8;border:2px solid #f9a8d4;border-radius:10px;padding:10px 28px;font-size:13px;font-weight:500;min-width:220px;text-align:center;cursor:pointer;transition:all 0.2s;border-left:6px solid #ec4899;"><span style="font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7;display:block;margin-bottom:2px;color:#831843;">Middleware 2</span>Thunk — handles async</div>
+        <div style="width:2px;height:24px;background:var(--p200);position:relative;"><div style="position:absolute;bottom:-5px;left:-4px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--p200);"></div></div>
+        <div id="mw-reducer" style="background:var(--p50);border:2px solid var(--p200);border-radius:10px;padding:10px 28px;font-size:13px;font-weight:500;min-width:220px;text-align:center;cursor:pointer;transition:all 0.2s;border-left:6px solid var(--p500);"><span style="font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7;display:block;margin-bottom:2px;color:var(--p700);">Reducer</span>Pure state transform</div>
+        <div style="width:2px;height:24px;background:var(--b100);position:relative;"><div style="position:absolute;bottom:-5px;left:-4px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--b100);"></div></div>
+        <div id="mw-store" style="background:var(--b50);border:2px solid var(--b100);border-radius:10px;padding:10px 28px;font-size:13px;font-weight:500;min-width:220px;text-align:center;cursor:pointer;transition:all 0.2s;border-left:6px solid var(--b500);"><span style="font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7;display:block;margin-bottom:2px;color:var(--b700);">Store</span>New state saved</div>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Why middleware exists</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;"><span style="color:var(--p500);font-size:16px;flex-shrink:0;">◆</span><div><b>Separation of concerns</b> — async logic stays out of components and reducers</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;"><span style="color:var(--p500);font-size:16px;flex-shrink:0;">◆</span><div><b>Composability</b> — multiple middlewares chain together</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;"><span style="color:var(--p500);font-size:16px;flex-shrink:0;">◆</span><div><b>Interception</b> — middleware can delay, modify, or cancel actions</div></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;"><span style="color:var(--p500);font-size:16px;flex-shrink:0;">◆</span><div><b>Observability</b> — logging, analytics without touching business logic</div></div>
+        </div>
+        <div id="mw-status" style="margin-top:1rem;font-size:12px;color:var(--t3);font-style:italic;">← Click "Dispatch Action" to see the flow animate</div>
+      </div>
+    </div>
+  </div>
+  <!-- NEW Browser Animated Diagram -->
+  <div class="card" id="browser-anim">
+    <div class="card-header">
+      <div class="card-icon" style="background:#eff6ff;">🎬</div>
+      <div>
+        <div class="card-title">Browser Engine — Animated Pipeline</div>
+        <div class="card-desc">Step-by-step animation of how the browser processes a URL request all the way to a painted page on screen.</div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <canvas id="cvs-browser" height="320"></canvas>
+      <div class="canvas-controls">
+        <button class="cbtn on" id="br-btn" onclick="brToggle()">⏸ Pause</button>
+        <button class="cbtn" onclick="brPrev()">⏮</button>
+        <button class="cbtn" onclick="brNext()">⏭</button>
+        <button class="cbtn" onclick="brReset()">↺ Restart</button>
+        <span id="br-label" style="font-size:11px;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;"></span>
+        <div class="canvas-tag">Browser Rendering Pipeline</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ JS ENGINE TAB ═══════════ -->
+<div class="tab-panel" id="panel-engine">
+  <div class="hero" style="background:linear-gradient(135deg,#854d0e,#b45309);">
+    <div class="hero-tag">⚡ V8 Engine</div>
+    <h1>JavaScript Engine Internals</h1>
+    <p>From source code to machine code — follow the journey of JavaScript through the V8 engine's parsing, compilation, and optimization pipeline.</p>
+  </div>
+  <!-- Existing pipeline -->
+  <div class="card" id="engine-pipeline">
+    <div class="card-title" style="margin-bottom:4px;">V8 Compilation Pipeline</div>
+    <div class="card-desc" style="margin-bottom:1.2rem;">Hover over each stage to understand what happens inside V8.</div>
+    <div class="engine-steps">
+      <div class="engine-step tooltip-wrap" onmouseenter="hlEngine(0)" onmouseleave="hlEngine(-1)" id="es-0"><span class="tooltip">Raw text JavaScript source code</span><div class="engine-icon">📝</div><div class="engine-label">Source</div><div class="engine-sub">JS Code</div></div>
+      <div class="engine-step tooltip-wrap" onmouseenter="hlEngine(1)" onmouseleave="hlEngine(-1)" id="es-1"><span class="tooltip">Tokenizes and builds AST</span><div class="engine-icon">🔍</div><div class="engine-label">Parser</div><div class="engine-sub">Tokenize</div></div>
+      <div class="engine-step tooltip-wrap" onmouseenter="hlEngine(2)" onmouseleave="hlEngine(-1)" id="es-2"><span class="tooltip">Abstract Syntax Tree — tree of nodes</span><div class="engine-icon">🌳</div><div class="engine-label">AST</div><div class="engine-sub">Syntax tree</div></div>
+      <div class="engine-step tooltip-wrap" onmouseenter="hlEngine(3)" onmouseleave="hlEngine(-1)" id="es-3"><span class="tooltip">Ignition bytecode interpreter</span><div class="engine-icon">⚙</div><div class="engine-label">Interpreter</div><div class="engine-sub">Ignition</div></div>
+      <div class="engine-step tooltip-wrap" onmouseenter="hlEngine(4)" onmouseleave="hlEngine(-1)" id="es-4"><span class="tooltip">TurboFan optimizes hot code paths</span><div class="engine-icon">🔥</div><div class="engine-label">JIT Compiler</div><div class="engine-sub">TurboFan</div></div>
+      <div class="engine-step tooltip-wrap" onmouseenter="hlEngine(5)" onmouseleave="hlEngine(-1)" id="es-5"><span class="tooltip">Fast native CPU instructions</span><div class="engine-icon">💻</div><div class="engine-label">Machine Code</div><div class="engine-sub">Native</div></div>
+    </div>
+    <div id="engine-detail" style="margin-top:1rem;background:var(--bg);border-radius:10px;padding:1rem;border:1px solid var(--border);font-size:13px;color:var(--t2);display:none;line-height:1.6;"></div>
+  </div>
+  <div class="card" id="engine-concepts">
+    <div class="card-title" style="margin-bottom:1rem;">Key Engine Concepts</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div style="background:var(--bg);border-radius:12px;padding:1.2rem;border:1px solid var(--border);">
+        <div style="font-size:14px;font-weight:600;margin-bottom:10px;">🌳 Abstract Syntax Tree</div>
+        <div class="code-block" style="font-size:11px;"><span class="code-comment">// Source: const x = 1 + 2</span><br>{ type: <span class="code-string">"VariableDeclaration"</span>,<br>&nbsp;&nbsp;declarations: [{ id: { name: <span class="code-string">"x"</span> }, init: { type: <span class="code-string">"BinaryExpression"</span>, operator: <span class="code-string">"+"</span>, left: { value: <span class="code-string">1</span> }, right: { value: <span class="code-string">2</span> } } }] }</div>
+      </div>
+      <div style="background:var(--bg);border-radius:12px;padding:1.2rem;border:1px solid var(--border);">
+        <div style="font-size:14px;font-weight:600;margin-bottom:10px;">🔥 JIT Optimization</div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:10px;">V8 first interprets code fast, then monitors "hot" functions and compiles them to optimized machine code using TurboFan.</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:8px;align-items:center;font-size:12px;"><span style="background:#ecfdf5;color:#065f46;padding:2px 8px;border-radius:4px;font-weight:600;">Cold</span><span style="color:var(--t2);">Interpreted by Ignition</span></div>
+          <div style="display:flex;gap:8px;align-items:center;font-size:12px;"><span style="background:#fff7ed;color:#9a3412;padding:2px 8px;border-radius:4px;font-weight:600;">Warm</span><span style="color:var(--t2);">Baseline compiled</span></div>
+          <div style="display:flex;gap:8px;align-items:center;font-size:12px;"><span style="background:#fef2f2;color:#991b1b;padding:2px 8px;border-radius:4px;font-weight:600;">Hot</span><span style="color:var(--t2);">TurboFan optimized</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- NEW JS Engine Animation -->
+  <div class="card" id="engine-anim">
+    <div class="card-header">
+      <div class="card-icon" style="background:#fff7ed;">🎬</div>
+      <div>
+        <div class="card-title">V8 Engine — Animated Compilation Flow</div>
+        <div class="card-desc">Watch JavaScript source code travel through parsing, AST generation, Ignition bytecode interpretation, and TurboFan JIT compilation to native machine code.</div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <canvas id="cvs-engine" height="300"></canvas>
+      <div class="canvas-controls">
+        <button class="cbtn on" id="eng-btn" onclick="engToggle()">⏸ Pause</button>
+        <button class="cbtn" onclick="engCode('simple')">Simple fn</button>
+        <button class="cbtn" onclick="engCode('hot')">Hot Path</button>
+        <button class="cbtn" onclick="engCode('deopt')">Deoptimize</button>
+        <div class="canvas-tag">V8 — Ignition + TurboFan</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ES6 TAB (NEW) ═══════════ -->
+<div class="tab-panel" id="panel-es6">
+  <div class="hero" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);">
+    <div class="hero-tag">📦 Modern JavaScript</div>
+    <h1>ES6+ Concepts</h1>
+    <p>Animated Event Loop, Call Stack, Task Queue, Promises, Async/Await, and Module system — the core of modern JavaScript explained visually.</p>
+  </div>
+
+  <div class="card" id="es6-eventloop">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ede9fe;">🔁</div>
+      <div>
+        <div class="card-title">Event Loop — Call Stack, Microtasks &amp; Task Queue</div>
+        <div class="card-desc">The most important concept in JavaScript runtime — watch how sync code, Promises (microtasks), and setTimeout (macrotasks) are scheduled and executed.</div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <canvas id="cvs-eventloop" height="380"></canvas>
+      <div class="canvas-controls">
+        <button class="cbtn" onclick="elRun('sync')">Sync Code</button>
+        <button class="cbtn" onclick="elRun('promise')">Promise.then()</button>
+        <button class="cbtn" onclick="elRun('timeout')">setTimeout()</button>
+        <button class="cbtn" onclick="elRun('async')">async/await</button>
+        <div class="canvas-tag">JavaScript Runtime</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+      <div style="background:var(--p50);border:1px solid var(--p200);border-radius:10px;padding:1rem;"><div style="font-size:13px;font-weight:600;color:var(--p700);margin-bottom:6px;">Call Stack</div><div style="font-size:12px;color:var(--t2);line-height:1.5;">LIFO structure. Synchronous functions pushed and popped. Blocks the main thread while executing.</div></div>
+      <div style="background:#fdf2f8;border:1px solid #f9a8d4;border-radius:10px;padding:1rem;"><div style="font-size:13px;font-weight:600;color:#831843;margin-bottom:6px;">Microtask Queue</div><div style="font-size:12px;color:var(--t2);line-height:1.5;">Promise callbacks (.then, .catch). Processed after every task, before the next macrotask. Higher priority.</div></div>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:1rem;"><div style="font-size:13px;font-weight:600;color:#9a3412;margin-bottom:6px;">Task Queue</div><div style="font-size:12px;color:var(--t2);line-height:1.5;">setTimeout, setInterval, I/O events. Processed one at a time when the call stack is empty.</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="es6-async">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ede9fe;">⏳</div>
+      <div>
+        <div class="card-title">Promises &amp; Async/Await — Animated Flow</div>
+        <div class="card-desc">Visualize how promise chains and async/await map to microtask queue operations under the hood.</div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <canvas id="cvs-async" height="280"></canvas>
+      <div class="canvas-controls">
+        <button class="cbtn" onclick="asyncRun('chain')">Promise Chain</button>
+        <button class="cbtn" onclick="asyncRun('await')">Async/Await</button>
+        <button class="cbtn" onclick="asyncRun('all')">Promise.all()</button>
+        <button class="cbtn" onclick="asyncRun('error')">Catch Error</button>
+        <div class="canvas-tag">ES2017+ Async Patterns</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="es6-modules">
+    <div class="card-header">
+      <div class="card-icon" style="background:#ede9fe;">📦</div>
+      <div>
+        <div class="card-title">ES6 Modules — import / export</div>
+        <div class="card-desc">How the JavaScript module system resolves dependencies, parses module graphs, and executes code in the correct order.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div class="flow-diagram">
+        <div class="flow-title">Module Resolution</div>
+        <div class="flow-steps">
+          <div style="display:flex;"><div class="flow-node node-purple">📄 Entry Point</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-blue">🔍 Parse Imports</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-teal">📦 Build Module Graph</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-green">⚡ Execute in Order</div></div>
+          <div class="flow-arrow"></div>
+          <div style="display:flex;"><div class="flow-node node-orange">🔗 Live Bindings</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="code-block" style="font-size:11px;"><span class="code-comment">// Named exports</span><br><span class="code-keyword">export</span> <span class="code-keyword">const</span> PI = <span class="code-string">3.14</span>;<br><span class="code-keyword">export function</span> <span class="code-func">add</span>(a, b) { <span class="code-keyword">return</span> a + b; }<br><br><span class="code-comment">// Default export</span><br><span class="code-keyword">export default</span> <span class="code-keyword">class</span> <span class="code-func">Calculator</span> {}<br><br><span class="code-comment">// Import</span><br><span class="code-keyword">import</span> Calculator, { PI, add } <span class="code-keyword">from</span> <span class="code-string">'./math.js'</span>;<br><span class="code-keyword">import</span> * <span class="code-keyword">as</span> math <span class="code-keyword">from</span> <span class="code-string">'./math.js'</span>;</div>
+        <div class="info-banner" style="margin-top:10px;"><div class="info-banner-icon">💡</div><div class="info-banner-text">ES6 modules are <b>statically analyzed</b> — imports are resolved before execution. This enables tree-shaking and circular dependency detection.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </main>
+</div><!-- end layout -->
+</div><!-- end app -->
+
+<script>
+// ─── UTILS ────────────────────────────────────────
+const PI2 = Math.PI*2;
+function lerp(a,b,t){return a+(b-a)*t;}
+function easeOut(t){return 1-Math.pow(1-t,3);}
+
+function setupCvs(id){
+  const c=document.getElementById(id); if(!c)return null;
+  const dpr=window.devicePixelRatio||1;
+  const rect=c.parentElement.getBoundingClientRect();
+  const w=rect.width||780, h=parseInt(c.getAttribute('height'))||300;
+  c.width=w*dpr; c.height=h*dpr; c.style.width=w+'px'; c.style.height=h+'px';
+  const ctx=c.getContext('2d'); ctx.scale(dpr,dpr); ctx._w=w; ctx._h=h;
+  return ctx;
+}
+
+function rr(ctx,x,y,w,h,r,fill,stroke,sw){
+  ctx.beginPath(); ctx.roundRect(x,y,w,h,r);
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw||1;ctx.stroke();}
+}
+
+function txt(ctx,t,x,y,size,color,align,weight){
+  ctx.font=`${weight||400} ${size}px 'DM Sans',sans-serif`;
+  ctx.fillStyle=color; ctx.textAlign=align||'center'; ctx.textBaseline='middle';
+  ctx.fillText(t,x,y);
+}
+
+function glow(ctx,x,y,r,color){
+  const g=ctx.createRadialGradient(x,y,0,x,y,r);
+  const base=color.length>7?color.slice(0,7):color;
+  g.addColorStop(0,base+'66'); g.addColorStop(1,base+'00');
+  ctx.beginPath(); ctx.arc(x,y,r,0,PI2); ctx.fillStyle=g; ctx.fill();
+}
+
+function dot(ctx,x,y,color,r,a){
+  ctx.beginPath(); ctx.arc(x,y,r||4,0,PI2);
+  const alpha=a===undefined?1:Math.max(0,Math.min(1,a));
+  ctx.globalAlpha=alpha;
+  ctx.fillStyle=color;
+  ctx.fill();
+  ctx.globalAlpha=1;
+}
+
+// ─── REACT ANIMATION ──────────────────────────────
+let RA={ctx:null,pts:[],hl:[],t:0,raf:null};
+const RA_NODES=[
+  {xi:.5,yi:.12,label:'App',sub:'root',c:'#8b7ae8'},
+  {xi:.28,yi:.38,label:'Header',sub:'static',c:'#60a5fa'},
+  {xi:.72,yi:.38,label:'Dashboard',sub:'useSelector',c:'#8b7ae8'},
+  {xi:.16,yi:.66,label:'Nav',sub:'memo',c:'#34d399'},
+  {xi:.55,yi:.66,label:'Chart',sub:'useState',c:'#f59e0b'},
+  {xi:.84,yi:.66,label:'Table',sub:'useQuery',c:'#f59e0b'},
+  {xi:.55,yi:.9,label:'Tooltip',sub:'hover',c:'#f472b6'},
+];
+const RA_EDGES=[[0,1],[0,2],[1,3],[2,4],[2,5],[4,6]];
+
+function initReact(){
+  const ctx=setupCvs('cvs-react'); if(!ctx)return;
+  RA.ctx=ctx; RA.pts=[]; RA.hl=[]; RA.t=0;
+  cancelAnimationFrame(RA.raf); animRA();
+}
+function RN(W,H){return RA_NODES.map(n=>({...n,x:n.xi*W,y:n.yi*H}));}
+function reactAnim(type){
+  const ctx=RA.ctx; if(!ctx)return;
+  RA.pts=[];
+  if(type==='render'){
+    RA.hl=[2,4,5,6];
+    [[2,4],[2,5],[4,6]].forEach(([a,b],i)=>{
+      setTimeout(()=>{const W2=ctx._w,H2=ctx._h;const nodes=RN(W2,H2);for(let j=0;j<10;j++)RA.pts.push({x:nodes[a].x,y:nodes[a].y,tx:nodes[b].x,ty:nodes[b].y,t:-(j*.06),c:'#f59e0b',r:3.5});},i*300);
+    });
+    setTimeout(()=>RA.hl=[],2500);
+  } else if(type==='redux'){
+    RA.hl=[0,1,2,3,4,5,6];
+    RA_EDGES.forEach(([a,b],i)=>{
+      setTimeout(()=>{const W2=ctx._w,H2=ctx._h;const nodes=RN(W2,H2);for(let j=0;j<10;j++)RA.pts.push({x:nodes[a].x,y:nodes[a].y,tx:nodes[b].x,ty:nodes[b].y,t:-(j*.07),c:'#8b7ae8',r:3.5});},i*250);
+    });
+    setTimeout(()=>RA.hl=[],3000);
+  } else if(type==='zustand'){
+    RA.hl=[2,4,5,6];
+    [4,5,6].forEach((si,i)=>{
+      setTimeout(()=>{const W2=ctx._w,H2=ctx._h;const nodes=RN(W2,H2);for(let j=0;j<10;j++)RA.pts.push({x:nodes[2].x,y:nodes[2].y,tx:nodes[si].x,ty:nodes[si].y,t:-(j*.06),c:'#34d399',r:3.5});},i*200);
+    });
+    setTimeout(()=>RA.hl=[],2200);
+  }
+}
+function animRA(){
+  const ctx=RA.ctx; if(!ctx)return;
+  const W=ctx._w,H=ctx._h; const nodes=RN(W,H);
+  ctx.clearRect(0,0,W,H); rr(ctx,0,0,W,H,0,'#0f0e1a');
+  RA_EDGES.forEach(([a,b])=>{
+    const na=nodes[a],nb=nodes[b];
+    ctx.beginPath(); ctx.moveTo(na.x,na.y+16); ctx.lineTo(nb.x,nb.y-16);
+    ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+  nodes.forEach((n,i)=>{
+    const hl=RA.hl.includes(i);
+    if(hl) glow(ctx,n.x,n.y,38,n.c);
+    rr(ctx,n.x-46,n.y-18,92,36,9,hl?n.c+'30':'#1a1830',hl?n.c:'#3d3566',hl?1.5:1);
+    txt(ctx,n.label,n.x,n.y-4,12,hl?n.c:'#e2e2f0','center',600);
+    txt(ctx,n.sub,n.x,n.y+9,9.5,'rgba(255,255,255,0.32)','center');
+  });
+  RA.pts=RA.pts.filter(p=>{
+    p.t+=0.022; if(p.t<0)return true; if(p.t>1.15)return false;
+    const et=easeOut(Math.min(p.t,1));
+    const px=lerp(p.x,p.tx,et),py=lerp(p.y,p.ty,et);
+    const a=p.t>.8?1-(p.t-.8)*5:1;
+    glow(ctx,px,py,10,p.c); dot(ctx,px,py,p.c,p.r,a); return true;
+  });
+  txt(ctx,'Virtual DOM Tree',W/2,H-12,10,'rgba(255,255,255,0.15)','center');
+  RA.t++; RA.raf=requestAnimationFrame(animRA);
+}
+
+// ─── ANGULAR ANIMATION ────────────────────────────
+let ANG={ctx:null,pts:[],t:0,raf:null};
+const ANG_NODES=[
+  {xi:.1,yi:.5,label:'Component',sub:'Template',c:'#ef4444',icon:'🅰'},
+  {xi:.3,yi:.5,label:'Service',sub:'DI Injected',c:'#f97316',icon:'🔧'},
+  {xi:.5,yi:.5,label:'NgRx Store',sub:'State Tree',c:'#8b7ae8',icon:'🏪'},
+  {xi:.7,yi:.5,label:'Effects',sub:'RxJS',c:'#f59e0b',icon:'⚡'},
+  {xi:.9,yi:.5,label:'Reducer',sub:'Pure fn',c:'#60a5fa',icon:'⚙'},
+];
+
+function initAngular(){
+  const ctx=setupCvs('cvs-angular'); if(!ctx)return;
+  ANG.ctx=ctx; ANG.pts=[]; ANG.t=0;
+  cancelAnimationFrame(ANG.raf); animANG();
+}
+function ANGN(W,H){return ANG_NODES.map(n=>({...n,x:n.xi*W,y:n.yi*H}));}
+function angularAnim(type){
+  const ctx=ANG.ctx; if(!ctx)return;
+  const flows={
+    dispatch:[[0,1,'#f97316'],[1,2,'#8b7ae8'],[2,3,'#f59e0b'],[3,4,'#60a5fa'],[4,2,'#34d399'],[2,0,'#34d399']],
+    http:[[0,1,'#60a5fa'],[1,3,'#60a5fa'],[3,4,'#60a5fa'],[4,2,'#34d399'],[2,0,'#34d399']],
+    rxjs:[[0,1,'#f59e0b'],[1,2,'#f59e0b'],[2,3,'#f59e0b'],[3,4,'#f59e0b'],[4,3,'#34d399'],[3,2,'#34d399'],[2,0,'#34d399']],
+  };
+  ANG.pts=[];
+  (flows[type]||[]).forEach(([a,b,col],i)=>{
+    setTimeout(()=>{
+      const W2=ctx._w,H2=ctx._h; const nodes=ANGN(W2,H2);
+      for(let j=0;j<10;j++)ANG.pts.push({x:nodes[a].x,y:nodes[a].y,tx:nodes[b].x,ty:nodes[b].y,t:-(j*.06),c:col,r:3.5});
+    },i*500);
+  });
+}
+function animANG(){
+  const ctx=ANG.ctx; if(!ctx)return;
+  const W=ctx._w,H=ctx._h; const nodes=ANGN(W,H);
+  ctx.clearRect(0,0,W,H); rr(ctx,0,0,W,H,0,'#0f0e1a');
+  // RxJS stream lane
+  rr(ctx,40,nodes[0].y-60,W-80,28,7,'#1a1020','#3d1a1a',1);
+  txt(ctx,'RxJS Observable Stream ─────────────────────────────────────',W/2,nodes[0].y-46,9.5,'rgba(245,158,11,0.3)','center');
+  // DI injector bar
+  rr(ctx,60,nodes[0].y+50,W-120,36,8,'#0e1a30','#1d4460',1);
+  txt(ctx,'🔗 Angular Injector — resolves dependencies across modules',W/2,nodes[0].y+68,11,'rgba(96,165,250,0.5)','center');
+  // connections & return arc
+  nodes.forEach((n,i)=>{
+    if(i<nodes.length-1){const nx=nodes[i+1]; ctx.beginPath(); ctx.moveTo(n.x+56,n.y); ctx.lineTo(nx.x-56,nx.y); ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1.5; ctx.stroke();}
+    ctx.beginPath(); ctx.moveTo(n.x,n.y+32); ctx.lineTo(n.x,n.y+52); ctx.strokeStyle='#1d446055'; ctx.lineWidth=1; ctx.setLineDash([2,4]); ctx.stroke(); ctx.setLineDash([]);
+  });
+  ctx.beginPath(); ctx.moveTo(nodes[4].x,nodes[4].y+32); ctx.bezierCurveTo(nodes[4].x,H-28,nodes[2].x,H-28,nodes[2].x,nodes[2].y+32); ctx.strokeStyle='#8b7ae833'; ctx.lineWidth=1.5; ctx.setLineDash([3,5]); ctx.stroke(); ctx.setLineDash([]);
+  txt(ctx,'state$ subscription',W*0.68,H-18,9,'rgba(139,122,232,0.4)','center');
+  nodes.forEach(n=>{
+    glow(ctx,n.x,n.y,32,n.c+'44');
+    rr(ctx,n.x-54,n.y-30,108,60,12,'#161428',n.c+'55',1.5);
+    txt(ctx,n.icon,n.x,n.y-8,16,'#fff','center');
+    txt(ctx,n.label,n.x,n.y+8,11,n.c,'center',600);
+    txt(ctx,n.sub,n.x,n.y+22,9,'rgba(255,255,255,0.32)','center');
+  });
+  ANG.pts=ANG.pts.filter(p=>{
+    p.t+=0.022; if(p.t<0)return true; if(p.t>1.15)return false;
+    const et=easeOut(Math.min(p.t,1));
+    const px=lerp(p.x,p.tx,et),py=lerp(p.y,p.ty,et);
+    const a=p.t>.8?1-(p.t-.8)*5:1;
+    glow(ctx,px,py,10,p.c); dot(ctx,px,py,p.c,p.r,a); return true;
+  });
+  ANG.t++; ANG.raf=requestAnimationFrame(animANG);
+}
+
+// ─── VUE ANIMATION ────────────────────────────────
+let VU={ctx:null,pts:[],t:0,raf:null,pulse:0};
+const VU_NODES=[
+  {xi:.5,yi:.13,label:'Vue Component',sub:'<template>',c:'#34d399',icon:'💚'},
+  {xi:.5,yi:.48,label:'Proxy (Reactive)',sub:'get / set trap',c:'#60a5fa',icon:'🔮'},
+  {xi:.22,yi:.78,label:'Computed',sub:'lazy eval',c:'#c084fc',icon:'🧮'},
+  {xi:.78,yi:.78,label:'Pinia Store',sub:'global state',c:'#f59e0b',icon:'🍍'},
+  {xi:.5,yi:.9,label:'DOM Update',sub:'VNode patch',c:'#f472b6',icon:'🖼'},
+];
+
+function initVue(){
+  const ctx=setupCvs('cvs-vue'); if(!ctx)return;
+  VU.ctx=ctx; VU.pts=[]; VU.t=0; VU.pulse=0;
+  cancelAnimationFrame(VU.raf); animVU();
+}
+function VUN(W,H){return VU_NODES.map(n=>({...n,x:n.xi*W,y:n.yi*H}));}
+function vueAnim(type){
+  const ctx=VU.ctx; if(!ctx)return;
+  VU.pulse=50;
+  VU.pts=[];
+  const flows={
+    reactive:[[0,1,'#34d399'],[1,2,'#c084fc'],[1,3,'#f59e0b'],[2,4,'#f472b6'],[3,4,'#f472b6']],
+    computed:[[1,2,'#c084fc'],[2,4,'#f472b6']],
+    pinia:[[0,3,'#f59e0b'],[3,1,'#f59e0b'],[1,4,'#f472b6']],
+    watcher:[[1,2,'#34d399'],[2,4,'#34d399']],
+  };
+  (flows[type]||[]).forEach(([a,b,col],i)=>{
+    setTimeout(()=>{
+      const W2=ctx._w,H2=ctx._h; const nodes=VUN(W2,H2);
+      for(let j=0;j<10;j++)VU.pts.push({x:nodes[a].x,y:nodes[a].y,tx:nodes[b].x,ty:nodes[b].y,t:-(j*.06),c:col,r:3.5});
+    },i*450);
+  });
+}
+function animVU(){
+  const ctx=VU.ctx; if(!ctx)return;
+  const W=ctx._w,H=ctx._h; const nodes=VUN(W,H);
+  ctx.clearRect(0,0,W,H); rr(ctx,0,0,W,H,0,'#0f0e1a');
+  [[0,1],[1,2],[1,3],[2,4],[3,4]].forEach(([a,b])=>{
+    const na=nodes[a],nb=nodes[b];
+    ctx.beginPath(); ctx.moveTo(na.x,na.y); ctx.lineTo(nb.x,nb.y);
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; ctx.setLineDash([3,5]); ctx.stroke(); ctx.setLineDash([]);
+  });
+  if(VU.pulse>0){glow(ctx,nodes[1].x,nodes[1].y,VU.pulse,nodes[1].c);VU.pulse-=1;}
+  nodes.forEach(n=>{
+    glow(ctx,n.x,n.y,26,n.c+'33');
+    rr(ctx,n.x-56,n.y-26,112,52,12,'#161428',n.c+'66',1.5);
+    txt(ctx,n.icon,n.x,n.y-7,15,'#fff','center');
+    txt(ctx,n.label,n.x,n.y+8,11,n.c,'center',600);
+    txt(ctx,n.sub,n.x,n.y+20,9,'rgba(255,255,255,0.32)','center');
+  });
+  VU.pts=VU.pts.filter(p=>{
+    p.t+=0.022; if(p.t<0)return true; if(p.t>1.15)return false;
+    const et=easeOut(Math.min(p.t,1));
+    const px=lerp(p.x,p.tx,et),py=lerp(p.y,p.ty,et);
+    const a=p.t>.8?1-(p.t-.8)*5:1;
+    glow(ctx,px,py,10,p.c); dot(ctx,px,py,p.c,p.r,a); return true;
+  });
+  VU.t++; VU.raf=requestAnimationFrame(animVU);
+}
+
+// ─── BROWSER ANIMATION ────────────────────────────
+const BR_STEPS=[
+  {label:'DNS Lookup',icon:'🔍',c:'#60a5fa',desc:'Resolves domain → IP via DNS resolver'},
+  {label:'TCP / TLS',icon:'🔗',c:'#8b7ae8',desc:'Three-way TCP handshake + TLS negotiation'},
+  {label:'HTTP Request',icon:'📤',c:'#f59e0b',desc:'GET request sent with headers to server'},
+  {label:'HTML Parse',icon:'📄',c:'#34d399',desc:'HTML tokenized; DOM tree built incrementally'},
+  {label:'CSS Parse',icon:'🎨',c:'#f472b6',desc:'CSS parsed; CSSOM built (render-blocking)'},
+  {label:'Render Tree',icon:'🌳',c:'#c084fc',desc:'DOM + CSSOM merged; only visible nodes kept'},
+  {label:'Layout',icon:'📐',c:'#f97316',desc:'Browser calculates position + size of every element'},
+  {label:'Paint',icon:'🖌',c:'#06b6d4',desc:'Pixels drawn to layers: text, borders, backgrounds'},
+  {label:'Composite',icon:'🖥',c:'#a78bfa',desc:'GPU composites layers → pixels on screen'},
+];
+let BR={ctx:null,step:0,playing:true,timer:0,raf:null};
+
+function initBrowser(){
+  const ctx=setupCvs('cvs-browser'); if(!ctx)return;
+  BR.ctx=ctx; BR.step=0; BR.playing=true; BR.timer=0;
+  cancelAnimationFrame(BR.raf); animBR();
+}
+function brToggle(){
+  BR.playing=!BR.playing;
+  const btn=document.getElementById('br-btn');
+  btn.textContent=BR.playing?'⏸ Pause':'▶ Play';
+  btn.classList.toggle('on',BR.playing);
+  if(BR.playing) animBR();
+}
+function brPrev(){BR.step=Math.max(0,BR.step-1);BR.timer=0;brLabel();}
+function brNext(){BR.step=Math.min(BR_STEPS.length-1,BR.step+1);BR.timer=0;brLabel();}
+function brReset(){BR.step=0;BR.timer=0;BR.playing=true;document.getElementById('br-btn').textContent='⏸ Pause';document.getElementById('br-btn').classList.add('on');}
+function brLabel(){const el=document.getElementById('br-label');if(el)el.textContent=`Step ${BR.step+1}/${BR_STEPS.length} — ${BR_STEPS[BR.step].label}`;}
+
+function animBR(){
+  const ctx=BR.ctx; if(!ctx)return;
+  const W=ctx._w,H=ctx._h;
+  ctx.clearRect(0,0,W,H); rr(ctx,0,0,W,H,0,'#0f0e1a');
+  brLabel();
+  const n=BR_STEPS.length, bw=Math.floor((W-60)/n)-4, bh=64, by=36, gap=4;
+  const totalW=(bw+gap)*n-gap, startX=(W-totalW)/2;
+
+  BR_STEPS.forEach((s,i)=>{
+    const x=startX+i*(bw+gap), active=i===BR.step, done=i<BR.step;
+    if(i<n-1){
+      ctx.beginPath(); ctx.moveTo(x+bw,by+bh/2); ctx.lineTo(x+bw+gap,by+bh/2);
+      ctx.strokeStyle=done?s.c+'88':'rgba(255,255,255,0.1)'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+    if(active)glow(ctx,x+bw/2,by+bh/2,48,s.c);
+    rr(ctx,x,by,bw,bh,10,active?s.c+'22':done?'#1a1a2e':'#161428',active?s.c:done?s.c+'55':'#2d2a4a',active?2:1);
+    txt(ctx,s.icon,x+bw/2,by+20,active?20:16,'#fff','center');
+    txt(ctx,s.label,x+bw/2,by+bh-14,9.5,active?s.c:done?s.c+'bb':'#5a5780','center',600);
+    if(done){
+      ctx.beginPath(); ctx.arc(x+bw-8,by+9,8,0,PI2); ctx.fillStyle='#34d399'; ctx.fill();
+      txt(ctx,'✓',x+bw-8,by+9,9,'#fff','center',700);
+    }
+  });
+
+  // Detail panel
+  const s=BR_STEPS[BR.step], py=by+bh+16;
+  rr(ctx,20,py,W-40,62,12,'#161428',s.c+'44',1.5);
+  glow(ctx,55,py+31,26,s.c);
+  txt(ctx,s.icon,55,py+31,22,'#fff','center');
+  txt(ctx,s.label,100,py+18,13,s.c,'left',600);
+  txt(ctx,s.desc,100,py+42,12,'rgba(255,255,255,0.6)','left');
+
+  // Progress bar
+  const pby=py+78, prog=BR.step/(BR_STEPS.length-1);
+  rr(ctx,20,pby,W-40,4,2,'rgba(255,255,255,0.06)');
+  rr(ctx,20,pby,Math.max(4,(W-40)*prog),4,2,s.c);
+
+  // URL bar mock
+  rr(ctx,W/2-180,H-34,360,24,7,'#1a1830','#3d3566',1);
+  txt(ctx,'🌐  https://example.com',W/2,H-22,11,'#a5b4fc','center',400);
+
+  if(BR.playing){
+    BR.timer++;
+    if(BR.timer>90){BR.timer=0;BR.step=(BR.step+1)%BR_STEPS.length;}
+    BR.raf=requestAnimationFrame(animBR);
+  }
+}
+
+// ─── ENGINE ANIMATION ─────────────────────────────
+const ENG_STAGES=[
+  {label:'Source',icon:'📝',c:'#a78bfa',sub:'JS code'},
+  {label:'Tokenizer',icon:'🔤',c:'#60a5fa',sub:'Lexer'},
+  {label:'Parser',icon:'🔍',c:'#34d399',sub:'Syntax'},
+  {label:'AST',icon:'🌳',c:'#f59e0b',sub:'Tree nodes'},
+  {label:'Ignition',icon:'⚙',c:'#f97316',sub:'Bytecode'},
+  {label:'TurboFan',icon:'🔥',c:'#ef4444',sub:'JIT Opt'},
+  {label:'Machine',icon:'💻',c:'#06b6d4',sub:'Native'},
+];
+let ENG={ctx:null,stage:0,playing:true,timer:0,codeType:'simple',raf:null};
+
+function initEngine(){
+  const ctx=setupCvs('cvs-engine'); if(!ctx)return;
+  ENG.ctx=ctx; ENG.stage=0; ENG.playing=true; ENG.timer=0;
+  cancelAnimationFrame(ENG.raf); animENG();
+}
+function engToggle(){
+  ENG.playing=!ENG.playing;
+  const btn=document.getElementById('eng-btn');
+  btn.textContent=ENG.playing?'⏸ Pause':'▶ Play';
+  btn.classList.toggle('on',ENG.playing);
+  if(ENG.playing) animENG();
+}
+function engCode(t){ENG.codeType=t;ENG.stage=0;ENG.timer=0;}
+
+function animENG(){
+  const ctx=ENG.ctx; if(!ctx)return;
+  const W=ctx._w,H=ctx._h;
+  ctx.clearRect(0,0,W,H); rr(ctx,0,0,W,H,0,'#0f0e1a');
+  const n=ENG_STAGES.length, cw=Math.floor((W-20)/n), colH=H-60;
+  const codeLabels={simple:'const add = (a,b) => a+b',hot:'for(let i=0;i<1e6;i++) sum+=i',deopt:'x = 1; x = "string" // type!'};
+  txt(ctx,codeLabels[ENG.codeType]||'',W/2,18,10.5,'rgba(255,255,255,0.28)','center',400);
+
+  ENG_STAGES.forEach((s,i)=>{
+    const cx=10+i*cw+cw/2, active=i===ENG.stage, done=i<ENG.stage;
+    rr(ctx,10+i*cw+3,32,cw-6,colH,10,active?s.c+'14':'#0f0e1a',active?s.c+'66':done?'#2d2a4a':'#1a1830',active?1.5:1);
+    if(active)glow(ctx,cx,72,38,s.c);
+    txt(ctx,s.icon,cx,62,active?26:18,'#fff','center');
+    txt(ctx,s.label,cx,96,11,active?s.c:done?s.c+'aa':'#3d3566','center',600);
+    txt(ctx,s.sub,cx,112,9,'rgba(255,255,255,0.28)','center');
+
+    // content per stage
+    if(s.label==='AST'&&(active||done)){
+      [[cx,140,'Program'],[cx-28,175,'Var'],[cx+28,175,'Arrow'],[cx+20,210,'Bin+']].forEach(([ax,ay,lbl],j)=>{
+        if(j>0){const px=j<=2?cx:cx+28,py=j<=2?148:183; ctx.beginPath();ctx.moveTo(px,py+6);ctx.lineTo(ax,ay-8);ctx.strokeStyle=s.c+'44';ctx.lineWidth=1;ctx.stroke();}
+        ctx.beginPath();ctx.arc(ax,ay,14,0,PI2);ctx.fillStyle='#1a1428';ctx.strokeStyle=s.c+(active?'cc':'55');ctx.lineWidth=1;ctx.fill();ctx.stroke();
+        txt(ctx,lbl,ax,ay,8,active?s.c:s.c+'88','center');
+      });
+    }
+    if(s.label==='Ignition'&&(active||done)){
+      ['LdaSmi [1]','Star r0','Add r0','Return'].forEach((line,j)=>{
+        txt(ctx,line,cx,148+j*22,8.5,active?'#f97316cc':'#f9731655','center',400);
+      });
+    }
+    if(s.label==='TurboFan'&&ENG.codeType==='hot'&&active){
+      txt(ctx,'🔥 HOT PATH',cx,148,12,'#ef4444','center',700);
+      txt(ctx,'x400 faster',cx,168,9.5,'#fbbf24','center');
+    }
+    if(s.label==='Machine'&&(active||done)){
+      ['MOV eax,1','ADD eax,ebx','RET'].forEach((line,j)=>{
+        txt(ctx,line,cx,148+j*26,8.5,active?'#06b6d4cc':'#06b6d455','center',400);
+      });
+    }
+    if(done){ctx.beginPath();ctx.arc(10+i*cw+cw-14,42,8,0,PI2);ctx.fillStyle='#34d399';ctx.fill();txt(ctx,'✓',10+i*cw+cw-14,42,9,'#fff','center',700);}
+  });
+
+  // progress bar
+  rr(ctx,10,H-16,W-20,4,2,'rgba(255,255,255,0.06)');
+  rr(ctx,10,H-16,Math.max(4,(W-20)*(ENG.stage/(n-1))),4,2,ENG_STAGES[ENG.stage].c);
+
+  if(ENG.playing){
+    ENG.timer++;
+    if(ENG.timer>75){ENG.timer=0;ENG.stage=ENG.stage<n-1?ENG.stage+1:0;}
+    ENG.raf=requestAnimationFrame(animENG);
+  }
+}
+
+// ─── EVENT LOOP ANIMATION ─────────────────────────
+let EL={ctx:null,t:0,stack:[],micro:[],macro:[],webapi:[],log:[],raf:null};
+function initEventLoop(){
+  const ctx=setupCvs('cvs-eventloop'); if(!ctx)return;
+  EL.ctx=ctx; EL.t=0; EL.stack=[]; EL.micro=[]; EL.macro=[]; EL.webapi=[]; EL.log=[];
+  cancelAnimationFrame(EL.raf); animEL();
+}
+function elRun(type){
+  EL.stack=[]; EL.micro=[]; EL.macro=[]; EL.webapi=[]; EL.log=[];
+  if(type==='sync'){
+    EL.stack=[{l:'main()',c:'#8b7ae8'},{l:'console.log(1)',c:'#60a5fa'},{l:'console.log(2)',c:'#60a5fa'}];
+    EL.log=['→ console.log(1) ✓','→ console.log(2) ✓','← stack empty'];
+    setTimeout(()=>{EL.stack=[{l:'main()',c:'#8b7ae8'},{l:'console.log(2)',c:'#60a5fa'}];},900);
+    setTimeout(()=>{EL.stack=[];},1800);
+  } else if(type==='promise'){
+    EL.stack=[{l:'main()',c:'#8b7ae8'},{l:'Promise.resolve()',c:'#c084fc'}];
+    EL.log=['→ Promise created','→ .then() queued → microtask','← sync stack cleared','→ microtask runs next!'];
+    setTimeout(()=>{EL.stack=[];EL.micro=[{l:'.then(callback)',c:'#c084fc'}];},800);
+    setTimeout(()=>{EL.stack=[{l:'.then(callback)',c:'#c084fc'}];EL.micro=[];},1600);
+    setTimeout(()=>{EL.stack=[];},2400);
+  } else if(type==='timeout'){
+    EL.stack=[{l:'main()',c:'#8b7ae8'},{l:'setTimeout(fn,0)',c:'#f59e0b'}];
+    EL.webapi=[{l:'Timer (0ms)',c:'#f59e0b',p:0}];
+    EL.log=['→ setTimeout registered','→ timer sent to Web API','← sync stack cleared','→ callback → task queue'];
+    let iv=setInterval(()=>{if(EL.webapi[0])EL.webapi[0].p=Math.min((EL.webapi[0].p||0)+.07,1);},80);
+    setTimeout(()=>{EL.stack=[];},900);
+    setTimeout(()=>{clearInterval(iv);EL.webapi=[];EL.macro=[{l:'setTimeout cb',c:'#f59e0b'}];},1800);
+    setTimeout(()=>{EL.stack=[{l:'setTimeout cb',c:'#f59e0b'}];EL.macro=[];},2600);
+    setTimeout(()=>{EL.stack=[];},3400);
+  } else if(type==='async'){
+    EL.stack=[{l:'async fn()',c:'#34d399'},{l:'await fetch()',c:'#34d399'}];
+    EL.webapi=[{l:'fetch() HTTP',c:'#60a5fa',p:0}];
+    EL.log=['→ await suspends fn','→ fetch → Web API','← async fn paused (suspended)','→ fetch done → microtask resumes fn'];
+    let iv=setInterval(()=>{if(EL.webapi[0])EL.webapi[0].p=Math.min((EL.webapi[0].p||0)+.04,1);},80);
+    setTimeout(()=>{EL.stack=[];},600);
+    setTimeout(()=>{clearInterval(iv);EL.webapi=[];EL.micro=[{l:'resume async fn()',c:'#34d399'}];},2200);
+    setTimeout(()=>{EL.stack=[{l:'async fn() resumes',c:'#34d399'}];EL.micro=[];},3000);
+    setTimeout(()=>{EL.stack=[];},3800);
+  }
+}
+function animEL(){
+  const ctx=EL.ctx; if(!ctx)return;
+  const W=ctx._w,H=ctx._h;
+  ctx.clearRect(0,0,W,H); rr(ctx,0,0,W,H,0,'#0f0e1a');
+
+  const col1=20,w1=160, col2=196,w2=160, col3=372,w3=Math.max(80,W-col3-20);
+  const topY=36, rowH=H-topY-20;
+
+  // Call Stack
+  rr(ctx,col1,topY,w1,rowH,10,'#130f2a','#8b7ae855',1.5);
+  txt(ctx,'CALL STACK',col1+w1/2,topY+16,9.5,'#8b7ae8','center',600);
+  EL.stack.slice().reverse().forEach((item,i)=>{
+    rr(ctx,col1+8,topY+rowH-38-i*40,w1-16,32,7,item.c+'22',item.c,1.5);
+    txt(ctx,item.l,col1+w1/2,topY+rowH-22-i*40,10.5,item.c,'center',500);
+  });
+
+  // Web APIs
+  rr(ctx,col2,topY,w2,140,10,'#0e1a30','#60a5fa44',1);
+  txt(ctx,'WEB APIs',col2+w2/2,topY+16,9.5,'#60a5fa','center',600);
+  EL.webapi.forEach((a,i)=>{
+    rr(ctx,col2+8,topY+30+i*50,w2-16,36,7,'#0e2040','#60a5fa66',1);
+    txt(ctx,a.l,col2+w2/2,topY+44+i*50,10,a.c,'center');
+    rr(ctx,col2+12,topY+56+i*50,w2-24,4,2,'#1e3a60');
+    rr(ctx,col2+12,topY+56+i*50,(w2-24)*(a.p||0),4,2,a.c);
+  });
+
+  // Microtask Queue
+  rr(ctx,col2,topY+156,w2,110,10,'#1a0e2a','#c084fc44',1);
+  txt(ctx,'MICROTASK QUEUE',col2+w2/2,topY+172,9,'#c084fc','center',600);
+  txt(ctx,'(Promises)',col2+w2/2,topY+184,8,'rgba(192,132,252,0.4)','center');
+  EL.micro.forEach((item,i)=>{
+    rr(ctx,col2+8,topY+192+i*34,w2-16,26,6,item.c+'22',item.c+'88',1);
+    txt(ctx,item.l,col2+w2/2,topY+205+i*34,9.5,item.c,'center',500);
+  });
+
+  // Task Queue
+  rr(ctx,col2,topY+282,w2,86,10,'#1a1400','#f59e0b44',1);
+  txt(ctx,'TASK QUEUE',col2+w2/2,topY+298,9,'#f59e0b','center',600);
+  txt(ctx,'(setTimeout / I/O)',col2+w2/2,topY+310,8,'rgba(245,158,11,0.4)','center');
+  EL.macro.forEach((item,i)=>{
+    rr(ctx,col2+8,topY+318+i*30,w2-16,24,6,item.c+'22',item.c+'88',1);
+    txt(ctx,item.l,col2+w2/2,topY+330+i*30,9.5,item.c,'center',500);
+  });
+
+  // Event loop arrows
+  txt(ctx,'↻',col2+w2/2,topY+376,20,'#8b7ae8','center');
+  txt(ctx,'Event Loop',col2+w2/2,topY+395,9,'#8b7ae8','center');
+
+  // Console / log
+  rr(ctx,col3,topY,w3,rowH,10,'#0e1a0e','#34d39944',1);
+  txt(ctx,'CONSOLE OUTPUT',col3+w3/2,topY+16,9.5,'#34d399','center',600);
+  EL.log.forEach((line,i)=>{
+    txt(ctx,line,col3+12,topY+36+i*22,10,'#34d399cc','left',400);
+  });
+
+  EL.t++; EL.raf=requestAnimationFrame(animEL);
+}
+
+// ─── ASYNC ANIMATION ──────────────────────────────
+let AS={ctx:null,pts:[],t:0,mode:'idle',raf:null};
+const AS_NODES=[
+  {xi:.08,yi:.45,label:'async fn()',c:'#34d399',icon:'⚡'},
+  {xi:.3, yi:.45,label:'await',c:'#c084fc',icon:'⏳'},
+  {xi:.52,yi:.22,label:'Promise A',c:'#f59e0b',icon:'🅐'},
+  {xi:.52,yi:.70,label:'Promise B',c:'#60a5fa',icon:'🅑'},
+  {xi:.74,yi:.45,label:'.catch()',c:'#ef4444',icon:'🚫'},
+  {xi:.92,yi:.45,label:'Resolved',c:'#34d399',icon:'✅'},
+];
+function initAsync(){
+  const ctx=setupCvs('cvs-async'); if(!ctx)return;
+  AS.ctx=ctx; AS.pts=[]; AS.t=0;
+  cancelAnimationFrame(AS.raf); animAS();
+}
+function ASN(W,H){return AS_NODES.map(n=>({...n,x:n.xi*W,y:n.yi*H}));}
+function asyncRun(type){
+  const ctx=AS.ctx; if(!ctx)return;
+  AS.mode=type; AS.pts=[];
+  const flows={
+    chain:[[0,1,'#c084fc'],[1,2,'#f59e0b'],[2,4,'#34d399'],[4,5,'#34d399']],
+    await:[[0,1,'#34d399'],[1,2,'#60a5fa'],[1,3,'#60a5fa'],[2,1,'#34d399'],[3,1,'#34d399'],[1,0,'#34d399']],
+    all:[[0,2,'#f59e0b'],[0,3,'#60a5fa'],[2,4,'#34d399'],[3,4,'#34d399'],[4,5,'#34d399']],
+    error:[[0,1,'#c084fc'],[1,2,'#ef4444'],[2,4,'#ef4444']],
+  };
+  (flows[type]||[]).forEach(([a,b,col],i)=>{
+    setTimeout(()=>{
+      const W2=ctx._w,H2=ctx._h; const nodes=ASN(W2,H2);
+      for(let j=0;j<10;j++)AS.pts.push({x:nodes[a].x,y:nodes[a].y,tx:nodes[b].x,ty:nodes[b].y,t:-(j*.06),c:col,r:3.5});
+    },i*500);
+  });
+}
+function animAS(){
+  const ctx=AS.ctx; if(!ctx)return;
+  const W=ctx._w,H=ctx._h; const nodes=ASN(W,H);
+  ctx.clearRect(0,0,W,H); rr(ctx,0,0,W,H,0,'#0f0e1a');
+  [[0,1],[1,2],[1,3],[2,4],[3,4],[4,5]].forEach(([a,b])=>{
+    const na=nodes[a],nb=nodes[b];
+    ctx.beginPath(); ctx.moveTo(na.x,na.y); ctx.lineTo(nb.x,nb.y);
+    ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1; ctx.setLineDash([3,5]); ctx.stroke(); ctx.setLineDash([]);
+  });
+  nodes.forEach(n=>{
+    glow(ctx,n.x,n.y,26,n.c+'33');
+    rr(ctx,n.x-50,n.y-26,100,52,12,'#161428',n.c+'66',1.5);
+    txt(ctx,n.icon,n.x,n.y-7,15,'#fff','center');
+    txt(ctx,n.label,n.x,n.y+10,11,n.c,'center',600);
+  });
+  AS.pts=AS.pts.filter(p=>{
+    p.t+=0.022; if(p.t<0)return true; if(p.t>1.15)return false;
+    const et=easeOut(Math.min(p.t,1));
+    const px=lerp(p.x,p.tx,et),py=lerp(p.y,p.ty,et);
+    const a=p.t>.8?1-(p.t-.8)*5:1;
+    glow(ctx,px,py,10,p.c); dot(ctx,px,py,p.c,p.r,a); return true;
+  });
+  const modes={chain:'Promise Chain: .then().then()',await:'Async/Await: suspend + resume in microtask',all:'Promise.all(): run concurrently',error:'Error propagates to .catch()',idle:'Select a pattern above'};
+  txt(ctx,modes[AS.mode]||'',W/2,H-12,10.5,'rgba(255,255,255,0.28)','center');
+  AS.t++; AS.raf=requestAnimationFrame(animAS);
+}
+
+// ─── EXISTING ORIGINAL FUNCTIONS (unchanged) ──────
+function switchSubTab(name, btn){
+  document.querySelectorAll('[id^="subtab-"]').forEach(el=>el.style.display='none');
+  const el=document.getElementById('subtab-'+name); if(el)el.style.display='block';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+}
+
+const pipelineDetails=[
+  {title:'DNS Lookup',text:'When you type a URL, the browser first checks its DNS cache. If not found, it queries a DNS resolver which maps the domain name to an IP address. This can take 10–300ms on first visit.'},
+  {title:'HTTP Request',text:'The browser opens a TCP connection (with TLS handshake for HTTPS), then sends an HTTP GET request. The server responds with HTML, status code, and response headers.'},
+  {title:'HTML Parsing',text:'The browser\'s HTML parser reads the byte stream and constructs the DOM — a tree of nodes. Script tags may pause parsing unless marked async/defer.'},
+  {title:'CSS Parsing',text:'CSS files trigger parallel downloads. The CSS parser builds the CSSOM. CSSOM construction blocks rendering because all CSS must be processed before painting.'},
+  {title:'Render Tree',text:'The browser combines DOM and CSSOM into a Render Tree — containing only visible nodes with their computed styles. Nodes with display:none are excluded.'},
+  {title:'Layout (Reflow)',text:'The browser calculates the exact position and size of every Render Tree element based on the viewport. This outputs a box model for every element.'},
+  {title:'Paint',text:'The browser converts layout boxes into actual pixels — painting backgrounds, borders, text, and images. The compositor assembles layers into the final image.'},
+  {title:'JavaScript Execution',text:'Scripts run on the main thread via the V8 engine. JS can manipulate DOM/CSSOM, triggering reflows and repaints. This is why async, defer, and Web Workers matter.'},
+];
+function selectPipeline(i){
+  document.querySelectorAll('.pipeline-step').forEach((s,j)=>s.classList.toggle('selected',i===j));
+  const d=document.getElementById('pipeline-detail');
+  const info=pipelineDetails[i];
+  d.innerHTML=`<h4>${info.title}</h4><p>${info.text}</p>`;
+  d.classList.add('visible');
+}
+
+const engineDetails=[
+  'Raw JavaScript source code — the text you write in your .js files.',
+  'The Parser tokenizes the source into lexical tokens, then builds an Abstract Syntax Tree (AST). It also performs syntax validation.',
+  'The AST is a tree representation of the code structure. Tools like Babel and ESLint work at this level.',
+  'Ignition, V8\'s interpreter, walks the AST and generates bytecode. It executes immediately, collecting type feedback for the optimizer.',
+  'TurboFan, V8\'s JIT compiler, takes "hot" bytecode and compiles it to highly optimized native machine code.',
+  'The final output: native machine code that runs directly on the CPU with no interpretation overhead.',
+];
+function hlEngine(i){
+  document.querySelectorAll('.engine-step').forEach((s,j)=>s.classList.toggle('hl',i===j));
+  const d=document.getElementById('engine-detail');
+  if(i>=0){d.style.display='block';d.textContent=engineDetails[i];} else d.style.display='none';
+}
+
+let mwStep=0;
+function animateMiddleware(){
+  const steps=[
+    {id:'mw-layer1',msg:'📋 Logger middleware intercepted and logged the action.'},
+    {id:'mw-layer2',msg:'⚙ Thunk middleware checked if action is a function — handling async dispatch.'},
+    {id:'mw-reducer',msg:'✅ Reducer received the action and computed new state (pure function).'},
+    {id:'mw-store',msg:'💾 Store updated. Subscribed React components will re-render.'},
+  ];
+  steps.forEach(s=>{
+    const el=document.getElementById(s.id);
+    if(el){el.style.transform='';el.style.boxShadow='';}
+  });
+  document.getElementById('mw-status').textContent='';
+  mwStep=0;
+  function runStep(){
+    if(mwStep>=steps.length){document.getElementById('mw-status').textContent='✅ Action fully processed through middleware chain!';return;}
+    const s=steps[mwStep];
+    const el=document.getElementById(s.id);
+    if(el){el.style.transform='translateX(8px) scale(1.02)';el.style.boxShadow='0 0 0 3px var(--p100)';el.style.transition='all 0.3s';}
+    document.getElementById('mw-status').textContent=s.msg;
+    setTimeout(()=>{
+      if(el){el.style.transform='';el.style.boxShadow='';}
+      mwStep++;
+      setTimeout(runStep,400);
+    },700);
+  }
+  runStep();
+}
+
+// ─── NAVIGATION ───────────────────────────────────
+const SIDEBAR_DATA={
+  react:[{label:'Component Architecture',id:'react-arch'},{label:'Redux State Flow',id:'react-redux'},{label:'Zustand',id:'react-zustand'},{label:'Animated Diagram',id:'react-anim'}],
+  graphql:[{label:'Apollo Architecture',id:'gql-apollo'},{label:'Core Concepts',id:'gql-concepts'}],
+  angular:[{label:'Architecture',id:'ng-arch'},{label:'Animated Diagram',id:'ng-anim'}],
+  vue:[{label:'Reactivity System',id:'vue-arch'},{label:'Animated Diagram',id:'vue-anim'}],
+  browser:[{label:'Rendering Pipeline',id:'browser-pipeline'},{label:'DOM + CSSOM',id:'browser-render'},{label:'Middleware',id:'browser-middleware'},{label:'Animated Pipeline',id:'browser-anim'}],
+  engine:[{label:'V8 Pipeline',id:'engine-pipeline'},{label:'Concepts',id:'engine-concepts'},{label:'Animated Diagram',id:'engine-anim'}],
+  es6:[{label:'Event Loop',id:'es6-eventloop'},{label:'Async/Await',id:'es6-async'},{label:'Modules',id:'es6-modules'}],
+};
+
+const SIDEBAR_ICONS={
+  'react-arch': `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="#8b7ae8"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#8b7ae8" stroke-width="1.3" fill="none"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#8b7ae8" stroke-width="1.3" fill="none" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="3.8" stroke="#8b7ae8" stroke-width="1.3" fill="none" transform="rotate(120 12 12)"/></svg>`,
+  'react-redux': `<svg viewBox="0 0 24 24" fill="none"><path d="M16.5 4.5c1.2 0 2.2.9 2.2 2.1s-.9 2.1-2.2 2.1H12c-2.5 0-4.5 2-4.5 4.5s2 4.5 4.5 4.5" stroke="#764ABC" stroke-width="1.4" stroke-linecap="round"/><path d="M14 14.5c.8.8 1.3 2 1.3 3.1 0 2.4-1.9 4.4-4.3 4.4S6.7 20 6.7 17.6c0-1.2.5-2.3 1.3-3.1" stroke="#764ABC" stroke-width="1.4" stroke-linecap="round"/><circle cx="16.5" cy="6.6" r="1.5" fill="#764ABC"/><circle cx="10" cy="19.1" r="1.5" fill="#764ABC"/><path d="M7 9.5c-.6-.7-1-1.6-1-2.6 0-2.2 1.8-4 4-4h.5" stroke="#764ABC" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="3" r="1.5" fill="#764ABC"/></svg>`,
+  'react-zustand': `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" stroke="#34d399" stroke-width="1.4"/><circle cx="9" cy="10" r="2" fill="#34d399"/><circle cx="15" cy="10" r="2" fill="#34d399"/><path d="M8 15c1 1.5 7 1.5 8 0" stroke="#34d399" stroke-width="1.4" stroke-linecap="round"/></svg>`,
+  'react-anim': `<svg viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="none" stroke="#8b7ae8" stroke-width="1.5" stroke-linejoin="round"/><circle cx="5" cy="3" r="1.5" fill="#8b7ae8"/><circle cx="19" cy="12" r="1.5" fill="#8b7ae8"/><circle cx="5" cy="21" r="1.5" fill="#8b7ae8"/></svg>`,
+  'gql-apollo': `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v10l9 5 9-5V7z" stroke="#E535AB" stroke-width="1.4"/><circle cx="12" cy="2" r="1.5" fill="#E535AB"/><circle cx="3" cy="7" r="1.5" fill="#E535AB"/><circle cx="21" cy="7" r="1.5" fill="#E535AB"/><circle cx="3" cy="17" r="1.5" fill="#E535AB"/><circle cx="21" cy="17" r="1.5" fill="#E535AB"/><circle cx="12" cy="22" r="1.5" fill="#E535AB"/><line x1="12" y1="2" x2="12" y2="22" stroke="#E535AB" stroke-width="1.1"/></svg>`,
+  'gql-concepts': `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="#E535AB" stroke-width="1.4"/><circle cx="12" cy="12" r="3" stroke="#E535AB" stroke-width="1.2"/><line x1="12" y1="2.5" x2="12" y2="9" stroke="#E535AB" stroke-width="1.2"/><line x1="12" y1="15" x2="12" y2="21.5" stroke="#E535AB" stroke-width="1.2"/><line x1="2.5" y1="12" x2="9" y2="12" stroke="#E535AB" stroke-width="1.2"/><line x1="15" y1="12" x2="21.5" y2="12" stroke="#E535AB" stroke-width="1.2"/></svg>`,
+  'ng-arch': `<svg viewBox="0 0 24 24"><path d="M12 2L3.5 5.2l1.3 11.2L12 21l7.2-4.6 1.3-11.2z" fill="#DD0031"/><path d="M12 2v19l7.2-4.6 1.3-11.2z" fill="#C3002F"/><path d="M12 6.5L9 14h1.4l.75-2h2.7l.75 2H16zm0 2.4l1.05 2.7h-2.1z" fill="white"/></svg>`,
+  'ng-anim': `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="5" height="8" rx="2" stroke="#DD0031" stroke-width="1.4"/><rect x="10" y="5" width="5" height="14" rx="2" stroke="#DD0031" stroke-width="1.4"/><rect x="17" y="10" width="4" height="6" rx="2" stroke="#DD0031" stroke-width="1.4"/><path d="M8 12h2M15 12h2" stroke="#DD0031" stroke-width="1.2"/></svg>`,
+  'vue-arch': `<svg viewBox="0 0 24 24"><path d="M2 3h4l6 10 6-10h4L12 21z" fill="#41B883"/><path d="M6 3h4l2 3.5L14 3h4L12 13z" fill="#35495E"/></svg>`,
+  'vue-anim': `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="#41B883"/><path d="M12 4v2M12 18v2M4 12H6M18 12h2" stroke="#41B883" stroke-width="1.5" stroke-linecap="round"/><path d="M6.34 6.34l1.42 1.42M16.24 16.24l1.42 1.42M6.34 17.66l1.42-1.42M16.24 7.76l1.42-1.42" stroke="#41B883" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+  'browser-pipeline': `<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="17" rx="2" stroke="#4285F4" stroke-width="1.4"/><line x1="2" y1="8" x2="22" y2="8" stroke="#4285F4" stroke-width="1.3"/><circle cx="5.5" cy="5.5" r="1" fill="#4285F4"/><circle cx="8.5" cy="5.5" r="1" fill="#4285F4"/><circle cx="11.5" cy="5.5" r="1" fill="#4285F4"/><path d="M5 12h4M5 15h6M5 18h3" stroke="#4285F4" stroke-width="1.2" stroke-linecap="round"/></svg>`,
+  'browser-render': `<svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#4285F4" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 3"/><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#4285F4" stroke-width="1.4"/><rect x="13" y="3" width="8" height="8" rx="1.5" stroke="#E535AB" stroke-width="1.4"/><rect x="8" y="13" width="8" height="8" rx="1.5" stroke="#8b7ae8" stroke-width="1.4"/></svg>`,
+  'browser-middleware': `<svg viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="2.5" stroke="#f59e0b" stroke-width="1.4"/><circle cx="12" cy="12" r="2.5" stroke="#f59e0b" stroke-width="1.4"/><circle cx="19" cy="12" r="2.5" stroke="#f59e0b" stroke-width="1.4"/><path d="M7.5 12h2M14.5 12h2" stroke="#f59e0b" stroke-width="1.4" stroke-linecap="round"/><path d="M5 5v4.5M12 5v4.5M19 5v4.5M5 14.5V19M12 14.5V19M19 14.5V19" stroke="#f59e0b" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="2 2"/></svg>`,
+  'browser-anim': `<svg viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="none" stroke="#4285F4" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+  'engine-pipeline': `<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="8" width="4" height="8" rx="1.5" stroke="#f59e0b" stroke-width="1.4"/><rect x="7" y="5" width="4" height="14" rx="1.5" stroke="#f59e0b" stroke-width="1.4"/><rect x="12" y="7" width="4" height="10" rx="1.5" stroke="#f59e0b" stroke-width="1.4"/><rect x="17" y="3" width="5" height="18" rx="1.5" stroke="#ef4444" stroke-width="1.4"/><path d="M6 12h1M11 12h1M16 12h1" stroke="#f59e0b" stroke-width="1.2"/></svg>`,
+  'engine-concepts': `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="5" rx="1.5" stroke="#f59e0b" stroke-width="1.4"/><rect x="3" y="10" width="8" height="5" rx="1.5" stroke="#f59e0b" stroke-width="1.4"/><rect x="3" y="17" width="8" height="4" rx="1.5" stroke="#ef4444" stroke-width="1.4"/><path d="M11 5.5h3l4 6-4 6H11" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  'engine-anim': `<svg viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/><circle cx="5" cy="3" r="1.5" fill="#f59e0b"/><circle cx="19" cy="12" r="1.5" fill="#f59e0b"/><circle cx="5" cy="21" r="1.5" fill="#f59e0b"/></svg>`,
+  'es6-eventloop': `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="#8b7ae8" stroke-width="1.4"/><path d="M12 7v5l3 3" stroke="#8b7ae8" stroke-width="1.5" stroke-linecap="round"/><path d="M7.5 4.5A9.5 9.5 0 0 1 21.5 12" stroke="#8b7ae8" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="2 3"/></svg>`,
+  'es6-async': `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="5" rx="1.5" stroke="#c084fc" stroke-width="1.4"/><rect x="3" y="10" width="7" height="5" rx="1.5" stroke="#c084fc" stroke-width="1.4"/><rect x="3" y="17" width="7" height="4" rx="1.5" stroke="#c084fc" stroke-width="1.4"/><path d="M10 5.5h11M10 12.5h7M10 19h5" stroke="#c084fc" stroke-width="1.3" stroke-linecap="round"/><circle cx="21" cy="5.5" r="1.5" fill="#c084fc"/><circle cx="17" cy="12.5" r="1.5" fill="#34d399"/><circle cx="15" cy="19" r="1.5" fill="#34d399"/></svg>`,
+  'es6-modules': `<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="7" height="7" rx="1.5" stroke="#8b7ae8" stroke-width="1.4"/><rect x="15" y="4" width="7" height="7" rx="1.5" stroke="#60a5fa" stroke-width="1.4"/><rect x="8.5" y="14" width="7" height="7" rx="1.5" stroke="#34d399" stroke-width="1.4"/><path d="M9 7.5h6M5.5 11v3.5l6.5 3M18.5 11v3.5l-6.5 3" stroke="#8b7ae8" stroke-width="1.2" stroke-linecap="round"/></svg>`
+};
+const COLORS={react:'#8b7ae8',graphql:'#e535ab',angular:'#ef4444',vue:'#34d399',browser:'#3b82f6',engine:'#f59e0b',es6:'#c084fc'};
+const LABELS={react:'⚛ React',graphql:'⬡ GraphQL',angular:'🅰 Angular',vue:'💚 Vue.js',browser:'🌐 Browser',engine:'⚡ JS Engine',es6:'📦 ES6'};
+
+let currentTab='react';
+const canvasInits={
+  react:()=>{initReact();},
+  angular:()=>{initAngular();},
+  vue:()=>{initVue();},
+  browser:()=>{initBrowser();},
+  engine:()=>{initEngine();},
+  es6:()=>{initEventLoop();initAsync();},
+};
+
+function switchMain(tab){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.header-nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  document.getElementById('main-'+tab).classList.add('active');
+  currentTab=tab;
+  renderSidebar(tab);
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{if(canvasInits[tab])canvasInits[tab]();},120);
+}
+
+function renderSidebar(tab){
+  const items=SIDEBAR_DATA[tab]||[];
+  const others=Object.entries(SIDEBAR_DATA).filter(([k])=>k!==tab);
+  document.getElementById('sidebar').innerHTML=`
+    <div class="sidebar-section">
+      <div class="sidebar-label">${LABELS[tab]}</div>
+      ${items.map((item,i)=>{
+        const icon=SIDEBAR_ICONS[item.id]?`<span class="sb-icon">${SIDEBAR_ICONS[item.id]}</span>`:'';
+        return `<button class="sidebar-item${i===0?' active':''}" onclick="scrollToSection('${item.id}',this)">${icon}${item.label}</button>`;
+      }).join('')}
+    </div>
+    <div class="sidebar-section" style="margin-top:1rem;">
+      <div class="sidebar-label">All Sections</div>
+      ${others.map(([k])=>`<button class="sidebar-item" onclick="switchMain('${k}')"><div class="sidebar-dot" style="background:${COLORS[k]};"></div>${LABELS[k]}</button>`).join('')}
+    </div>
+  `;
+}
+
+function scrollToSection(id,btn){
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.sidebar-item').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+}
+
+// INIT
+renderSidebar('react');
+setTimeout(()=>initReact(),150);
+
+window.addEventListener('resize',()=>{
+  if(canvasInits[currentTab])canvasInits[currentTab]();
+});
+
+// ── DARK / LIGHT MODE TOGGLE ──────────────────────────────────────────────
+function buildCircuitSVG(dark) {
+  const sc = dark ? 'rgba(139,122,232,0.07)' : 'rgba(108,93,211,0.055)';
+  const dc = dark ? 'rgba(96,165,250,0.05)'  : 'rgba(37,99,235,0.04)';
+  const nc = dark ? 'rgba(139,122,232,0.12)' : 'rgba(108,93,211,0.09)';
+  const rc = dark ? 'rgba(139,122,232,0.09)' : 'rgba(108,93,211,0.07)';
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='480' height='480'>
+    <g fill='none' stroke='${sc}' stroke-width='1'>
+      <line x1='0' y1='120' x2='480' y2='120'/>
+      <line x1='0' y1='240' x2='480' y2='240'/>
+      <line x1='0' y1='360' x2='480' y2='360'/>
+      <line x1='120' y1='0' x2='120' y2='480'/>
+      <line x1='240' y1='0' x2='240' y2='480'/>
+      <line x1='360' y1='0' x2='360' y2='480'/>
+    </g>
+    <g fill='none' stroke='${dc}' stroke-width='1'>
+      <line x1='120' y1='120' x2='240' y2='240'/>
+      <line x1='240' y1='120' x2='360' y2='240'/>
+      <line x1='120' y1='240' x2='240' y2='360'/>
+      <line x1='240' y1='240' x2='360' y2='360'/>
+    </g>
+    <g fill='${nc}'>
+      <circle cx='120' cy='120' r='3'/><circle cx='240' cy='120' r='2.5'/>
+      <circle cx='360' cy='120' r='3'/><circle cx='120' cy='240' r='2.5'/>
+      <circle cx='240' cy='240' r='4'/><circle cx='360' cy='240' r='2.5'/>
+      <circle cx='120' cy='360' r='3'/><circle cx='240' cy='360' r='2.5'/>
+      <circle cx='360' cy='360' r='3'/>
+    </g>
+    <g fill='none' stroke='${rc}' stroke-width='1'>
+      <circle cx='240' cy='240' r='10'/>
+      <circle cx='120' cy='120' r='7'/>
+      <circle cx='360' cy='360' r='7'/>
+    </g>
+  </svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
+
+function applyCircuitSVG(dark) {
+  document.documentElement.style.setProperty('--circuit-svg', buildCircuitSVG(dark));
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newDark = !isDark;
+  document.documentElement.setAttribute('data-theme', newDark ? 'dark' : 'light');
+  const label = document.getElementById('theme-label');
+  const thumb = document.getElementById('tt-thumb');
+  if (label) label.textContent = newDark ? 'Dark' : 'Light';
+  if (thumb) thumb.textContent = newDark ? '🌙' : '☀️';
+  applyCircuitSVG(newDark);
+  localStorage.setItem('fe-hub-theme', newDark ? 'dark' : 'light');
+}
+
+// On page load — restore saved preference
+(function() {
+  const saved = localStorage.getItem('fe-hub-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const useDark = saved ? saved === 'dark' : prefersDark;
+  if (useDark) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    const label = document.getElementById('theme-label');
+    const thumb  = document.getElementById('tt-thumb');
+    if (label) label.textContent = 'Dark';
+    if (thumb)  thumb.textContent = '🌙';
+  }
+  applyCircuitSVG(useDark);
+})();
+</script>
+</body>
+</html>
