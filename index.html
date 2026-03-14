@@ -644,6 +644,71 @@ button[onclick^="beSelect"]:hover, button[onclick^="cdSelect"]:hover {
 .logo:hover .logo-sub {
   color: var(--p400) !important;
 }
+
+/* ── React Hook Tooltips ─────────────────────────────────────────────────── */
+.hook-row {
+  position: relative;
+}
+.hook-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.92);
+  width: 210px;
+  background: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 9px 11px;
+  box-shadow: 0 8px 28px rgba(108,93,211,0.18), 0 2px 8px rgba(0,0,0,0.06);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 999;
+}
+.hook-row:hover .hook-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+/* Arrow pointing left */
+.hook-tooltip::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--white);
+  border-left: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
+}
+.hook-tooltip-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: monospace;
+  margin-bottom: 4px;
+}
+.hook-tooltip-desc {
+  font-size: 10.5px;
+  color: var(--t2);
+  line-height: 1.55;
+}
+.hook-tooltip-example {
+  margin-top: 6px;
+  font-size: 10px;
+  font-family: monospace;
+  background: var(--code-bg);
+  color: var(--p600);
+  border-radius: 5px;
+  padding: 4px 7px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Dark mode adjustments */
+[data-theme="dark"] .hook-tooltip {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 <body>
@@ -775,14 +840,76 @@ button[onclick^="beSelect"]:hover, button[onclick^="cdSelect"]:hover {
           <div class="flow-arrow"></div>
           <div style="display:flex;"><div class="flow-node node-orange">DOM Update</div></div>
         </div>
-        <div style="flex:1;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border);font-size:12px;color:var(--t2);line-height:1.8;">
-          <div style="font-weight:600;color:var(--t1);margin-bottom:8px;font-size:13px;">Key Lifecycle Hooks</div>
-          <div>🔵 <b>useState</b> — local state management</div>
-          <div>🟣 <b>useEffect</b> — side effects &amp; lifecycle</div>
-          <div>🟢 <b>useContext</b> — global context access</div>
-          <div>🟠 <b>useRef</b> — direct DOM access</div>
-          <div>🔴 <b>useMemo</b> — memoized values</div>
-          <div>🔷 <b>useCallback</b> — stable functions</div>
+        <div style="flex:1;padding:1rem 1.1rem;background:var(--bg);border-radius:12px;border:1px solid var(--border);display:flex;flex-direction:column;gap:6px;">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:linear-gradient(135deg,var(--p600),var(--b500));border-radius:6px;flex-shrink:0;">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none"><path d="M12 3C8 3 5 6 5 10c0 2.5 1.2 4.7 3 6.1V18h8v-1.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-7-7z" stroke="white" stroke-width="1.5" fill="none"/><path d="M9 21h6M10 18v3M14 18v3" stroke="white" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </span>
+            <span style="font-size:12.5px;font-weight:700;color:var(--t1);letter-spacing:0.01em;">Key Hooks</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--p100);color:var(--p600);">6 hooks</span>
+          </div>
+          <!-- Hook rows -->
+          <div class="hook-row" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--white);border:1px solid var(--border);transition:all 0.15s;cursor:default;" onmouseover="this.style.borderColor='#3b82f6';this.style.transform='translateX(3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateX(0)'">
+            <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;box-shadow:0 0 6px #3b82f680;"></span>
+            <span style="font-size:11.5px;font-weight:700;color:var(--t1);font-family:monospace;">useState</span>
+            <span style="font-size:10.5px;color:var(--t2);margin-left:auto;">local state</span>
+            <div class="hook-tooltip">
+              <div class="hook-tooltip-name" style="color:#3b82f6;">useState</div>
+              <div class="hook-tooltip-desc">Adds reactive local state to a function component. Returns a value and a setter — calling the setter triggers a re-render with the new value.</div>
+              <div class="hook-tooltip-example">const [count, setCount] = useState(0)</div>
+            </div>
+          </div>
+          <div class="hook-row" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--white);border:1px solid var(--border);transition:all 0.15s;cursor:default;" onmouseover="this.style.borderColor='#8b7ae8';this.style.transform='translateX(3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateX(0)'">
+            <span style="width:8px;height:8px;border-radius:50%;background:#8b7ae8;flex-shrink:0;box-shadow:0 0 6px #8b7ae880;"></span>
+            <span style="font-size:11.5px;font-weight:700;color:var(--t1);font-family:monospace;">useEffect</span>
+            <span style="font-size:10.5px;color:var(--t2);margin-left:auto;">side effects</span>
+            <div class="hook-tooltip">
+              <div class="hook-tooltip-name" style="color:#8b7ae8;">useEffect</div>
+              <div class="hook-tooltip-desc">Runs a side-effect after render. Use for data fetching, subscriptions, or DOM mutations. The dependency array controls when it re-runs.</div>
+              <div class="hook-tooltip-example">useEffect(() => fetchData(), [id])</div>
+            </div>
+          </div>
+          <div class="hook-row" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--white);border:1px solid var(--border);transition:all 0.15s;cursor:default;" onmouseover="this.style.borderColor='#059669';this.style.transform='translateX(3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateX(0)'">
+            <span style="width:8px;height:8px;border-radius:50%;background:#059669;flex-shrink:0;box-shadow:0 0 6px #05966980;"></span>
+            <span style="font-size:11.5px;font-weight:700;color:var(--t1);font-family:monospace;">useContext</span>
+            <span style="font-size:10.5px;color:var(--t2);margin-left:auto;">global ctx</span>
+            <div class="hook-tooltip">
+              <div class="hook-tooltip-name" style="color:#059669;">useContext</div>
+              <div class="hook-tooltip-desc">Reads and subscribes to a React context. Avoids prop-drilling by making shared values (theme, auth, locale) accessible anywhere in the tree.</div>
+              <div class="hook-tooltip-example">const theme = useContext(ThemeCtx)</div>
+            </div>
+          </div>
+          <div class="hook-row" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--white);border:1px solid var(--border);transition:all 0.15s;cursor:default;" onmouseover="this.style.borderColor='#f59e0b';this.style.transform='translateX(3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateX(0)'">
+            <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;box-shadow:0 0 6px #f59e0b80;"></span>
+            <span style="font-size:11.5px;font-weight:700;color:var(--t1);font-family:monospace;">useRef</span>
+            <span style="font-size:10.5px;color:var(--t2);margin-left:auto;">DOM access</span>
+            <div class="hook-tooltip">
+              <div class="hook-tooltip-name" style="color:#f59e0b;">useRef</div>
+              <div class="hook-tooltip-desc">Returns a mutable ref object whose .current persists across renders without causing re-renders. Ideal for direct DOM access or storing instance values.</div>
+              <div class="hook-tooltip-example">const el = useRef(null)</div>
+            </div>
+          </div>
+          <div class="hook-row" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--white);border:1px solid var(--border);transition:all 0.15s;cursor:default;" onmouseover="this.style.borderColor='#ef4444';this.style.transform='translateX(3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateX(0)'">
+            <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;box-shadow:0 0 6px #ef444480;"></span>
+            <span style="font-size:11.5px;font-weight:700;color:var(--t1);font-family:monospace;">useMemo</span>
+            <span style="font-size:10.5px;color:var(--t2);margin-left:auto;">memoized val</span>
+            <div class="hook-tooltip">
+              <div class="hook-tooltip-name" style="color:#ef4444;">useMemo</div>
+              <div class="hook-tooltip-desc">Caches the result of an expensive calculation between renders. Only recomputes when its dependencies change — prevents redundant heavy work.</div>
+              <div class="hook-tooltip-example">const sorted = useMemo(() => sort(list), [list])</div>
+            </div>
+          </div>
+          <div class="hook-row" style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--white);border:1px solid var(--border);transition:all 0.15s;cursor:default;" onmouseover="this.style.borderColor='#0ea5e9';this.style.transform='translateX(3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateX(0)'">
+            <span style="width:8px;height:8px;border-radius:50%;background:#0ea5e9;flex-shrink:0;box-shadow:0 0 6px #0ea5e980;"></span>
+            <span style="font-size:11.5px;font-weight:700;color:var(--t1);font-family:monospace;">useCallback</span>
+            <span style="font-size:10.5px;color:var(--t2);margin-left:auto;">stable fn</span>
+            <div class="hook-tooltip">
+              <div class="hook-tooltip-name" style="color:#0ea5e9;">useCallback</div>
+              <div class="hook-tooltip-desc">Returns a memoized version of a callback that only changes when dependencies change. Prevents child re-renders caused by new function references.</div>
+              <div class="hook-tooltip-example">const fn = useCallback(() => doX(), [x])</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
