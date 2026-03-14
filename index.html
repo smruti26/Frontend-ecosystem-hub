@@ -241,6 +241,7 @@ body::before {
 .aleg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 /* ── Prep Q&A Section ── */
 .qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1rem;}
+.qa-card.open{grid-column:1 / -1;}
 .qa-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow 0.2s,border-color 0.2s;}
 .qa-card:hover{box-shadow:0 4px 20px rgba(108,93,211,0.1);border-color:var(--p200);}
 .qa-q{display:flex;align-items:flex-start;gap:10px;padding:1rem 1.2rem 0.8rem;cursor:pointer;user-select:none;}
@@ -248,8 +249,19 @@ body::before {
 .qa-qtxt{font-size:13px;font-weight:600;color:var(--t1);line-height:1.45;padding-top:4px;flex:1;}
 .qa-chevron{flex-shrink:0;margin-top:5px;transition:transform 0.25s;color:var(--t3);}
 .qa-card.open .qa-chevron{transform:rotate(180deg);}
-.qa-a{display:none;padding:0 1.2rem 1rem 3.2rem;border-top:1px solid var(--border);}
-.qa-card.open .qa-a{display:block;}
+.qa-a{
+  display:grid;grid-template-rows:0fr;
+  padding:0 1.2rem 0 3.2rem;
+  border-top:0px solid var(--border);
+  transition:grid-template-rows 0.28s ease, padding 0.28s ease, border-width 0.28s ease;
+  overflow:hidden;
+}
+.qa-a > .qa-a-inner{min-height:0;overflow:hidden;}
+.qa-card.open .qa-a{
+  grid-template-rows:1fr;
+  padding:0 1.2rem 1rem 3.2rem;
+  border-top-width:1px;
+}
 .qa-a p{font-size:12.5px;color:var(--t2);line-height:1.7;margin-top:0.8rem;}
 .qa-a .qa-box{display:flex;flex-wrap:wrap;gap:6px;margin-top:0.7rem;}
 .qa-a .qa-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
@@ -4910,12 +4922,12 @@ function renderQA(filter){
         <div class="qa-qtxt">${q.q}</div>
         <svg class="qa-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </div>
-      <div class="qa-a">
+      <div class="qa-a"><div class="qa-a-inner">
         <span class="qa-tag" style="background:${meta.bg};color:${meta.color};border:1px solid ${meta.color}30;margin-top:0.8rem;display:inline-block;">${meta.label}</span>
         <p>${q.a}</p>
         ${diagramHTML}
         ${tagsHTML}
-      </div>
+      </div></div>
     </div>`;
   }).join('');
 }
@@ -4923,7 +4935,11 @@ function renderQA(filter){
 function toggleQA(id){
   const card = document.getElementById('qa-card-'+id);
   if(!card) return;
-  card.classList.toggle('open');
+  const isOpen = card.classList.contains('open');
+  // Close all open cards first
+  document.querySelectorAll('.qa-card.open').forEach(c => c.classList.remove('open'));
+  // If it wasn't open before, open it now (toggle behaviour)
+  if(!isOpen) card.classList.add('open');
 }
 
 function qaFilter(cat, btn){
