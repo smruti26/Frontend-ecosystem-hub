@@ -997,8 +997,7 @@ pre, .code-block, .code { overflow-x: auto; }
 }
 
 /* ── Prevent horizontal overflow ── */
-.tab-panel, main, .card { overflow-x: hidden; max-width: 100%; }
-body, .layout { overflow-x: hidden; }
+.tab-panel { overflow-x: hidden; }
 /* ── Responsive tables ── */
 table { width: 100%; border-collapse: collapse; }
 @media (max-width: 640px) {
@@ -1169,6 +1168,17 @@ table { width: 100%; border-collapse: collapse; }
 /* ── CSS sub-panels inside HCA section (avoid conflict with .tab-panel) ── */
 .css-panel { display: none; }
 .css-panel.active { display: block; animation: fadeIn .25s ease; }
+
+/* ── Scrollbar gutter fix — prevents flicker on tab switch ──────────
+   scrollbar-gutter: stable tells the browser to always reserve space
+   for the scrollbar even when it's not visible. This prevents the
+   layout reflow (and visible right-side flicker) that occurs when
+   panels switch and page height changes momentarily.
+   overflow-y: scroll is the fallback for older browsers. ─────────── */
+html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
 </style>
 </head>
 <b
@@ -2139,6 +2149,198 @@ self.onmessage = (e) =&gt; {
     </div>
   </div>
 
+  <!-- ES6 Key Features Overview Card -->
+  <div class="card" id="es6-features">
+    <div class="card-header">
+      <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#f97316);display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-title">Key ES6+ Features Overview</div>
+        <div class="card-desc">ES6 (ECMAScript 2015) and beyond introduced powerful syntax improvements and new built-in features that transformed modern JavaScript development — making code cleaner, more expressive, and easier to maintain.</div>
+      </div>
+    </div>
+
+    <!-- Features grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem;margin-bottom:1.2rem;">
+
+      <!-- let & const -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">let / const</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Block-Scoped Variables</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;"><code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">let</code> for variables that can change, <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">const</code> for immutable constants. Both are block-scoped — no more <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">var</code> hoisting issues.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">const</span> API = <span class="code-string">'https://api.dev'</span>;<br>
+<span class="code-keyword">let</span> count = 0; count++;
+        </div>
+      </div>
+
+      <!-- Arrow Functions -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">=&gt;</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Arrow Functions</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Shorter syntax for function expressions. Also lexically binds <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">this</code> — no more <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">self = this</code> hacks.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">const</span> <span class="code-func">add</span> = (a, b) =&gt; a + b;<br>
+<span class="code-keyword">const</span> <span class="code-func">greet</span> = name =&gt; <span class="code-string">`Hi, ${name}!`</span>;
+        </div>
+      </div>
+
+      <!-- Template Literals -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#10b981,#059669);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">` `</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Template Literals</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Easier string interpolation using backticks and <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">${expression}</code> syntax. Supports multi-line strings natively.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">const</span> msg = <span class="code-string">`Hello, ${name}!<br>&nbsp;Score: ${score * 2}`</span>;
+        </div>
+      </div>
+
+      <!-- Destructuring -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">{ }</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Destructuring Assignment</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Unpack values from arrays or objects directly into distinct variables in one clean expression.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">const</span> { name, age = 18 } = user;<br>
+<span class="code-keyword">const</span> [first, ...rest] = items;
+        </div>
+      </div>
+
+      <!-- Spread & Rest -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#ec4899,#db2777);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">...</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Spread &amp; Rest Operators</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;"><strong>Spread</strong> expands arrays/objects. <strong>Rest</strong> collects multiple elements into an array.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">const</span> merged = [...arr1, ...arr2];<br>
+<span class="code-keyword">const</span> <span class="code-func">sum</span> = (...nums) =&gt; nums.<span class="code-func">reduce</span>((a,b) =&gt; a+b);
+        </div>
+      </div>
+
+      <!-- Classes -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">class</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Classes</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Clean OOP syntax for creating objects and handling inheritance — replaces verbose prototype-based construction.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">class</span> <span class="code-func">Animal</span> {<br>
+&nbsp;&nbsp;<span class="code-func">constructor</span>(name) { <span class="code-keyword">this</span>.name = name; }<br>
+&nbsp;&nbsp;<span class="code-func">speak</span>() { <span class="code-keyword">return</span> <span class="code-string">`${this.name} roars!`</span>; }<br>
+}
+        </div>
+      </div>
+
+      <!-- Promises -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#14b8a6,#0d9488);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">Promise</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Promises</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Robust async handling — eliminates callback hell. Three states: <em>pending</em>, <em>fulfilled</em>, <em>rejected</em>.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-func">fetch</span>(<span class="code-string">'/api'</span>)<br>
+&nbsp;&nbsp;.then(r =&gt; r.<span class="code-func">json</span>())<br>
+&nbsp;&nbsp;.catch(err =&gt; console.<span class="code-func">error</span>(err));
+        </div>
+      </div>
+
+      <!-- Enhanced Object Literals -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#f97316,#ea580c);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">{ }</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Enhanced Object Literals</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Property shorthand, computed keys, and method shorthand — less boilerplate when creating objects.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">const</span> obj = { name, age, <span class="code-func">greet</span>() { <span class="code-keyword">return</span> <span class="code-string">'hi'</span>; },<br>
+&nbsp;&nbsp;[<span class="code-string">`key_${id}`</span>]: <span class="code-keyword">true</span> };
+        </div>
+      </div>
+
+      <!-- Default Parameters -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#06b6d4,#0891b2);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">= val</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Default Parameters</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Functions can have default values for parameters if no value or <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">undefined</code> is passed.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">function</span> <span class="code-func">greet</span>(name = <span class="code-string">'World'</span>, times = 1) {<br>
+&nbsp;&nbsp;<span class="code-keyword">return</span> <span class="code-string">`Hello ${name}`</span>.repeat(times);<br>
+}
+        </div>
+      </div>
+
+      <!-- For...of -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#84cc16,#65a30d);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">for..of</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">For...of Loop</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Iterates over iterable objects — arrays, strings, Maps, Sets. Cleaner than <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">for...in</code> for values.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">for</span> (<span class="code-keyword">const</span> item <span class="code-keyword">of</span> items) <span class="code-func">process</span>(item);<br>
+<span class="code-keyword">for</span> (<span class="code-keyword">const</span> [k, v] <span class="code-keyword">of</span> map) console.<span class="code-func">log</span>(k, v);
+        </div>
+      </div>
+
+      <!-- Map & Set -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#a855f7,#9333ea);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">Map/Set</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Map &amp; Set</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;"><code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">Set</code> stores unique values. <code style="background:var(--p50);padding:1px 5px;border-radius:3px;color:var(--p600);font-size:11px;">Map</code> stores ordered key-value pairs — any type as key.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">const</span> unique = <span class="code-keyword">new</span> <span class="code-func">Set</span>([1, 2, 2, 3]); <span class="code-comment">// {1,2,3}</span><br>
+<span class="code-keyword">const</span> map = <span class="code-keyword">new</span> <span class="code-func">Map</span>(); map.<span class="code-func">set</span>(<span class="code-string">'key'</span>, 42);
+        </div>
+      </div>
+
+      <!-- Modules -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:6px;padding:3px 8px;font-size:10.5px;font-weight:700;color:white;font-family:monospace;">import</span>
+          <span style="font-size:11.5px;font-weight:700;color:var(--t1);">Modules</span>
+        </div>
+        <p style="font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:6px;">Split code into reusable, separate files improving modularity, tree-shaking, and maintainability.</p>
+        <div class="code-block" style="font-size:10.5px;margin:0;padding:.5rem .7rem;">
+<span class="code-keyword">export</span> <span class="code-keyword">const</span> PI = 3.14;<br>
+<span class="code-keyword">import</span> { PI } <span class="code-keyword">from</span> <span class="code-string">'./math.js'</span>;
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick reference badges -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem;">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem;">ES Version Timeline</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+        <span style="background:#fef3c7;border:1px solid #fcd34d;border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600;color:#92400e;">ES6 / 2015 — let, const, classes, arrow fn, template literals, destructuring, spread, modules, promises, Map/Set</span>
+        <span style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600;color:#065f46;">ES7 / 2016 — Array.includes(), ** operator</span>
+        <span style="background:#eff6ff;border:1px solid #93c5fd;border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600;color:#1e40af;">ES8 / 2017 — async/await, Object.entries/values</span>
+        <span style="background:#fdf4ff;border:1px solid #d8b4fe;border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600;color:#6b21a8;">ES9+ / 2018+ — rest/spread objects, Promise.all, optional chaining, nullish coalescing</span>
+      </div>
+    </div>
+
+  </div>
+
+
   <div class="card" id="es6-modules">
     <div class="card-header">
       <div class="card-icon" style="background:#ede9fe;">📦</div>
@@ -2168,6 +2370,152 @@ self.onmessage = (e) =&gt; {
       </div>
     </div>
   </div>
+
+  <!-- TypeScript Card -->
+  <div class="card" id="es6-typescript">
+    <div class="card-header">
+      <div class="card-icon" style="background:linear-gradient(135deg,#0072c6,#0096d7);display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+          <rect x="2" y="2" width="20" height="20" rx="3" fill="#0072c6"/>
+          <text x="4.5" y="17" font-size="11" font-weight="900" font-family="Arial" fill="white">TS</text>
+        </svg>
+      </div>
+      <div>
+        <div class="card-title">TypeScript — Typed JavaScript at Scale</div>
+        <div class="card-desc">TypeScript is a strongly typed superset of JavaScript that compiles to plain JS. It adds optional static typing, interfaces, generics, and powerful tooling — making large codebases safer, more maintainable, and easier to scale.</div>
+      </div>
+    </div>
+
+    <!-- Why TypeScript -->
+    <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #93c5fd;border-radius:12px;padding:1rem;margin-bottom:1.2rem;">
+      <div style="font-size:12.5px;font-weight:700;color:#1e40af;margin-bottom:.7rem;">🚀 Why TypeScript for Large Applications?</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem;">
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;line-height:1.5;"><span style="color:#2563eb;font-weight:700;flex-shrink:0;">▸</span><div><strong>Catch errors at compile time</strong> — not at runtime in production</div></div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;line-height:1.5;"><span style="color:#2563eb;font-weight:700;flex-shrink:0;">▸</span><div><strong>IDE IntelliSense</strong> — autocomplete, refactoring, navigation</div></div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;line-height:1.5;"><span style="color:#2563eb;font-weight:700;flex-shrink:0;">▸</span><div><strong>Self-documenting code</strong> — types describe intent and contracts</div></div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;line-height:1.5;"><span style="color:#2563eb;font-weight:700;flex-shrink:0;">▸</span><div><strong>Safe refactoring</strong> — change a type and see every breakage instantly</div></div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;line-height:1.5;"><span style="color:#2563eb;font-weight:700;flex-shrink:0;">▸</span><div><strong>Team scalability</strong> — onboard developers faster with typed APIs</div></div>
+        <div style="font-size:12px;color:var(--t2);display:flex;gap:7px;line-height:1.5;"><span style="color:#2563eb;font-weight:700;flex-shrink:0;">▸</span><div><strong>Used everywhere</strong> — React, Angular, Node.js, Next.js all support it natively</div></div>
+      </div>
+    </div>
+
+    <!-- Core Concepts Grid -->
+    <div style="font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:.8rem;">Core Concepts</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.7rem;margin-bottom:1.2rem;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+        <div style="font-size:12px;font-weight:700;color:#0072c6;margin-bottom:5px;">🔷 Static Types</div>
+        <div style="font-size:11.5px;color:var(--t2);line-height:1.5;"><code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:10.5px;">string</code>, <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:10.5px;">number</code>, <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:10.5px;">boolean</code>, <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:10.5px;">any</code>, <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:10.5px;">unknown</code>, <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:10.5px;">never</code>, <code style="background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:10.5px;">void</code></div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+        <div style="font-size:12px;font-weight:700;color:#0072c6;margin-bottom:5px;">📐 Interfaces</div>
+        <div style="font-size:11.5px;color:var(--t2);line-height:1.5;">Define the shape of objects. Extendable, mergeable, and the foundation of contract-based design.</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+        <div style="font-size:12px;font-weight:700;color:#0072c6;margin-bottom:5px;">🔧 Generics</div>
+        <div style="font-size:11.5px;color:var(--t2);line-height:1.5;">Write reusable components that work with any type — <code style="background:var(--code-bg);padding:1px 4px;border-radius:3px;font-size:10.5px;">Array&lt;T&gt;</code>, <code style="background:var(--code-bg);padding:1px 4px;border-radius:3px;font-size:10.5px;">Promise&lt;T&gt;</code></div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+        <div style="font-size:12px;font-weight:700;color:#0072c6;margin-bottom:5px;">🏷️ Type Aliases</div>
+        <div style="font-size:11.5px;color:var(--t2);line-height:1.5;">Name any type with <code style="background:var(--code-bg);padding:1px 4px;border-radius:3px;font-size:10.5px;">type</code> keyword — union, intersection, mapped, conditional types.</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+        <div style="font-size:12px;font-weight:700;color:#0072c6;margin-bottom:5px;">🔒 Enums</div>
+        <div style="font-size:11.5px;color:var(--t2);line-height:1.5;">Named constant sets — <code style="background:var(--code-bg);padding:1px 4px;border-radius:3px;font-size:10.5px;">enum Direction { Up, Down }</code></div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;">
+        <div style="font-size:12px;font-weight:700;color:#0072c6;margin-bottom:5px;">🎯 Decorators</div>
+        <div style="font-size:11.5px;color:var(--t2);line-height:1.5;">Metadata annotation for classes and methods — used heavily in Angular and NestJS.</div>
+      </div>
+    </div>
+
+    <!-- JS vs TS side by side -->
+    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:.5rem;">JavaScript vs TypeScript</div>
+    <div class="rg-2" style="margin-bottom:1.2rem;">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#f97316;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px 6px 0 0;padding:5px 10px;">❌ JavaScript — errors at runtime</div>
+        <div class="code-block" style="font-size:11px;margin:0;border-radius:0 0 8px 8px;border-top:none;">
+<span class="code-keyword">function</span> <span class="code-func">add</span>(a, b) {<br>
+&nbsp;&nbsp;<span class="code-keyword">return</span> a + b;<br>
+}<br>
+<span class="code-func">add</span>(<span class="code-string">"5"</span>, 10); <span class="code-comment">// "510" 💥 silent bug</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px 6px 0 0;padding:5px 10px;">✅ TypeScript — caught at compile time</div>
+        <div class="code-block" style="font-size:11px;margin:0;border-radius:0 0 8px 8px;border-top:none;">
+<span class="code-keyword">function</span> <span class="code-func">add</span>(a: <span class="code-func">number</span>, b: <span class="code-func">number</span>): <span class="code-func">number</span> {<br>
+&nbsp;&nbsp;<span class="code-keyword">return</span> a + b;<br>
+}<br>
+<span class="code-func">add</span>(<span class="code-string">"5"</span>, 10); <span class="code-comment">// TS Error ✓ caught!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key features code -->
+    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:.5rem;">Key Features in Practice</div>
+    <div class="code-block" style="font-size:11px;">
+<span class="code-comment">// Interface + Type Alias</span><br>
+<span class="code-keyword">interface</span> <span class="code-func">User</span> { id: <span class="code-func">number</span>; name: <span class="code-func">string</span>; role: <span class="code-string">'admin'</span> | <span class="code-string">'user'</span>; }<br>
+<span class="code-keyword">type</span> <span class="code-func">ID</span> = <span class="code-func">string</span> | <span class="code-func">number</span>; <span class="code-comment">// Union type</span><br><br>
+<span class="code-comment">// Generics — reusable typed function</span><br>
+<span class="code-keyword">function</span> <span class="code-func">getFirst</span>&lt;T&gt;(arr: T[]): T { <span class="code-keyword">return</span> arr[0]; }<br>
+<span class="code-func">getFirst</span>&lt;<span class="code-func">number</span>&gt;([1, 2, 3]); <span class="code-comment">// typed as number</span><br><br>
+<span class="code-comment">// Optional + Readonly</span><br>
+<span class="code-keyword">interface</span> <span class="code-func">Config</span> { <span class="code-keyword">readonly</span> api: <span class="code-func">string</span>; timeout?: <span class="code-func">number</span>; }<br><br>
+<span class="code-comment">// Enum</span><br>
+<span class="code-keyword">enum</span> <span class="code-func">Status</span> { Active = <span class="code-string">'ACTIVE'</span>, Inactive = <span class="code-string">'INACTIVE'</span> }<br><br>
+<span class="code-comment">// Type Guard</span><br>
+<span class="code-keyword">function</span> <span class="code-func">isString</span>(val: <span class="code-keyword">unknown</span>): val <span class="code-keyword">is</span> <span class="code-func">string</span> {<br>
+&nbsp;&nbsp;<span class="code-keyword">return</span> <span class="code-keyword">typeof</span> val === <span class="code-string">'string'</span>;<br>
+}
+    </div>
+
+    <!-- TS vs JS table -->
+    <div style="margin-top:1.1rem;overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:7px 10px;text-align:left;border-bottom:2px solid var(--border2);color:var(--t1);font-weight:700;">Aspect</th>
+            <th style="padding:7px 10px;text-align:center;border-bottom:2px solid #fed7aa;color:#c2410c;font-weight:700;">JavaScript</th>
+            <th style="padding:7px 10px;text-align:center;border-bottom:2px solid #93c5fd;color:#1d4ed8;font-weight:700;">TypeScript</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:6px 10px;color:var(--t1);font-weight:600;">Typing</td>
+            <td style="padding:6px 10px;text-align:center;color:var(--t2);">Dynamic (runtime)</td>
+            <td style="padding:6px 10px;text-align:center;color:var(--t2);">Static (compile time)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg);">
+            <td style="padding:6px 10px;color:var(--t1);font-weight:600;">Error detection</td>
+            <td style="padding:6px 10px;text-align:center;color:#ef4444;font-weight:600;">❌ Runtime</td>
+            <td style="padding:6px 10px;text-align:center;color:#22c55e;font-weight:600;">✅ Compile time</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:6px 10px;color:var(--t1);font-weight:600;">IDE support</td>
+            <td style="padding:6px 10px;text-align:center;color:var(--t2);">Basic</td>
+            <td style="padding:6px 10px;text-align:center;color:#22c55e;font-weight:600;">✅ Full IntelliSense</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--bg);">
+            <td style="padding:6px 10px;color:var(--t1);font-weight:600;">Learning curve</td>
+            <td style="padding:6px 10px;text-align:center;color:#22c55e;font-weight:600;">✅ Lower</td>
+            <td style="padding:6px 10px;text-align:center;color:var(--t2);">Moderate</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:6px 10px;color:var(--t1);font-weight:600;">Large projects</td>
+            <td style="padding:6px 10px;text-align:center;color:#f97316;font-weight:600;">⚠️ Gets complex</td>
+            <td style="padding:6px 10px;text-align:center;color:#22c55e;font-weight:600;">✅ Scales well</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 10px;color:var(--t1);font-weight:600;">Used by</td>
+            <td style="padding:6px 10px;text-align:center;color:var(--t2);">All projects</td>
+            <td style="padding:6px 10px;text-align:center;color:var(--t2);">Angular, Next.js, NestJS</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══════════ REACT ADVANCED TAB ═══════════ -->
@@ -2283,6 +2631,133 @@ self.onmessage = (e) =&gt; {
       <div class="code-block" style="font-size:11px;"><span class="code-comment">// ❌ Extra &lt;div&gt; breaks table</span><br><span class="code-keyword">return</span> (<br>&nbsp;&nbsp;&lt;div&gt; <span class="code-comment">// invalid in &lt;tr&gt;!</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Name&lt;/td&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;Age&lt;/td&gt;<br>&nbsp;&nbsp;&lt;/div&gt;<br>);</div>
     </div>
   </div>
+
+  <!-- Error Boundaries Card -->
+  <div class="card" id="radv-errorboundary">
+    <div class="card-header">
+      <div class="card-icon" style="background:linear-gradient(135deg,#dc2626,#ef4444);display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+          <path d="M12 2L2 19h20L12 2z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M12 9v5M12 16.5v.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="card-title">React Error Boundaries</div>
+        <div class="card-desc">Error Boundaries are React components that catch JavaScript errors during rendering, in lifecycle methods, and in constructors within their child component tree — logging errors and displaying a fallback UI instead of crashing the entire application.</div>
+      </div>
+    </div>
+
+    <!-- How it works flow -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;margin-bottom:1.2rem;">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.8rem;">How Error Boundaries Work</div>
+      <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;gap:.5rem;">
+        <div style="background:#fff1f2;border:1.5px solid #fca5a5;border-radius:9px;padding:.6rem 1rem;text-align:center;min-width:110px;">
+          <div style="font-size:18px;margin-bottom:3px;">💥</div>
+          <div style="font-size:11px;font-weight:700;color:#dc2626;">JS Error Thrown</div>
+          <div style="font-size:10px;color:var(--t3);">in child tree</div>
+        </div>
+        <div style="font-size:18px;color:var(--p400);">→</div>
+        <div style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:9px;padding:.6rem 1rem;text-align:center;min-width:110px;">
+          <div style="font-size:18px;margin-bottom:3px;">🛡️</div>
+          <div style="font-size:11px;font-weight:700;color:#1d4ed8;">Error Boundary</div>
+          <div style="font-size:10px;color:var(--t3);">catches the error</div>
+        </div>
+        <div style="font-size:18px;color:var(--p400);">→</div>
+        <div style="background:#fefce8;border:1.5px solid #fde047;border-radius:9px;padding:.6rem 1rem;text-align:center;min-width:110px;">
+          <div style="font-size:18px;margin-bottom:3px;">📋</div>
+          <div style="font-size:11px;font-weight:700;color:#92400e;">componentDidCatch</div>
+          <div style="font-size:10px;color:var(--t3);">logs the error</div>
+        </div>
+        <div style="font-size:18px;color:var(--p400);">→</div>
+        <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:9px;padding:.6rem 1rem;text-align:center;min-width:110px;">
+          <div style="font-size:18px;margin-bottom:3px;">🔄</div>
+          <div style="font-size:11px;font-weight:700;color:#16a34a;">Fallback UI</div>
+          <div style="font-size:10px;color:var(--t3);">shown to user</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key methods + what they catch -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem;">
+      <div>
+        <div style="font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:.7rem;">Two Lifecycle Methods</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="background:#fff1f2;border-left:3px solid #ef4444;border-radius:5px;padding:7px 10px;">
+            <code style="font-size:11.5px;font-weight:700;color:#dc2626;">static getDerivedStateFromError()</code>
+            <div style="font-size:11.5px;color:var(--t2);margin-top:3px;line-height:1.5;">Called during render phase. Updates state to show the fallback UI on next render.</div>
+          </div>
+          <div style="background:#eff6ff;border-left:3px solid #3b82f6;border-radius:5px;padding:7px 10px;">
+            <code style="font-size:11.5px;font-weight:700;color:#1d4ed8;">componentDidCatch(error, info)</code>
+            <div style="font-size:11.5px;color:var(--t2);margin-top:3px;line-height:1.5;">Called after render phase. Used for logging errors to services like Sentry.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12.5px;font-weight:700;color:var(--t1);margin-bottom:.7rem;">What They Catch / Don't Catch</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="font-size:11.5px;color:var(--t2);display:flex;gap:6px;line-height:1.5;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✅</span> Errors in render methods</div>
+          <div style="font-size:11.5px;color:var(--t2);display:flex;gap:6px;line-height:1.5;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✅</span> Errors in lifecycle methods</div>
+          <div style="font-size:11.5px;color:var(--t2);display:flex;gap:6px;line-height:1.5;"><span style="color:#22c55e;font-weight:700;flex-shrink:0;">✅</span> Errors in constructors of child tree</div>
+          <div style="font-size:11.5px;color:var(--t2);display:flex;gap:6px;line-height:1.5;"><span style="color:#ef4444;font-weight:700;flex-shrink:0;">❌</span> Event handlers (use try/catch)</div>
+          <div style="font-size:11.5px;color:var(--t2);display:flex;gap:6px;line-height:1.5;"><span style="color:#ef4444;font-weight:700;flex-shrink:0;">❌</span> Async code (setTimeout, Promises)</div>
+          <div style="font-size:11.5px;color:var(--t2);display:flex;gap:6px;line-height:1.5;"><span style="color:#ef4444;font-weight:700;flex-shrink:0;">❌</span> Server-side rendering</div>
+          <div style="font-size:11.5px;color:var(--t2);display:flex;gap:6px;line-height:1.5;"><span style="color:#ef4444;font-weight:700;flex-shrink:0;">❌</span> Errors in the boundary itself</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code example -->
+    <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:.5rem;">Implementation</div>
+    <div class="rg-2">
+      <div class="code-block" style="font-size:11px;margin:0;">
+<span class="code-keyword">class</span> <span class="code-func">ErrorBoundary</span> <span class="code-keyword">extends</span> Component {<br>
+&nbsp;&nbsp;<span class="code-func">constructor</span>(props) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">super</span>(props);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">this</span>.state = { hasError: <span class="code-keyword">false</span> };<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="code-keyword">static</span> <span class="code-func">getDerivedStateFromError</span>(err) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> { hasError: <span class="code-keyword">true</span> };<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="code-func">componentDidCatch</span>(err, info) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-func">logToService</span>(err, info);<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="code-func">render</span>() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span> (<span class="code-keyword">this</span>.state.hasError)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> <span class="code-string">&lt;h2&gt;Something went wrong.&lt;/h2&gt;</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span> <span class="code-keyword">this</span>.props.children;<br>
+&nbsp;&nbsp;}<br>
+}
+      </div>
+      <div class="code-block" style="font-size:11px;margin:0;">
+<span class="code-comment">// Wrap any component tree</span><br>
+<span class="code-keyword">function</span> <span class="code-func">App</span>() {<br>
+&nbsp;&nbsp;<span class="code-keyword">return</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">&lt;ErrorBoundary&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">&lt;Dashboard /&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">&lt;UserProfile /&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">&lt;/ErrorBoundary&gt;</span><br>
+&nbsp;&nbsp;);<br>
+}<br><br>
+<span class="code-comment">// React 19: use ErrorBoundary</span><br>
+<span class="code-comment">// from 'react-error-boundary' pkg</span><br>
+<span class="code-string">&lt;ErrorBoundary</span><br>
+&nbsp;&nbsp;<span class="code-func">fallback</span>=<span class="code-string">{&lt;ErrorFallback /&gt;}</span><br>
+&nbsp;&nbsp;<span class="code-func">onError</span>=<span class="code-string">{logError}</span><br>
+<span class="code-string">&gt;</span><br>
+&nbsp;&nbsp;<span class="code-string">&lt;MyWidget /&gt;</span><br>
+<span class="code-string">&lt;/ErrorBoundary&gt;</span>
+      </div>
+    </div>
+
+    <!-- Info banner -->
+    <div style="margin-top:1rem;background:linear-gradient(135deg,#fef2f2,#fff1f2);border:1px solid #fca5a5;border-radius:10px;padding:.9rem 1rem;display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:18px;flex-shrink:0;">💡</span>
+      <div style="font-size:12.5px;color:#7f1d1d;line-height:1.65;">
+        <strong>Best practice:</strong> Place Error Boundaries at <em>strategic levels</em> — wrap top-level routes for page-level recovery, and wrap critical widgets individually so one broken component doesn't crash the whole app. Use <code style="background:#fee2e2;padding:1px 5px;border-radius:3px;font-size:11px;">react-error-boundary</code> package for hooks-based components and React 19.
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══════════ REACT 19 TAB ═══════════ -->
@@ -4374,7 +4849,7 @@ self.onmessage = (e) =&gt; {
 </div><!-- end app -->
 
 <!-- FOOTER — outside #app, full width -->
-<footer style="background:var(--white);border-top:1px solid var(--border);margin-top:0;transition:background 0.3s,border-color 0.3s;position:relative;overflow:hidden;">
+<footer style="background:var(--white);border-top:1px solid var(--border);margin-top:3rem;transition:background 0.3s,border-color 0.3s;position:relative;overflow:hidden;">
 
   <!-- Dot pattern background -->
   <svg aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:1;">
@@ -5253,7 +5728,7 @@ function animateMiddleware(){
 // ─── NAVIGATION ───────────────────────────────────
 const TAB_NAMES={react:'React',graphql:'GraphQL',angular:'Angular',vue:'Vue.js',browser:'Browser',engine:'JS Engine',es6:'ES6+','react-adv':'React+',react19:'React 19',build:'Build Tools',nextjs:'Next.js',patterns:'Patterns',vitals:'Web Vitals',security:'Security',testing:'Testing',prepqa:'Prep Q&A',backend:'Backend',cicd:'CI/CD & Deploy',hca:'HTML/CSS/A11y'};
 const SIDEBAR_DATA={
-  react:[{label:'Component Architecture',id:'react-arch'},{label:'Redux State Flow',id:'react-redux'},{label:'Zustand',id:'react-zustand'},{label:'Animated Diagram',id:'react-anim'}], graphql:[{label:'Apollo Architecture',id:'gql-apollo'},{label:'Core Concepts',id:'gql-concepts'},{label:'Animated Diagram',id:'gql-anim'}], angular:[{label:'Architecture',id:'ng-arch'},{label:'Animated Diagram',id:'ng-anim'}], vue:[{label:'Reactivity System',id:'vue-arch'},{label:'Animated Diagram',id:'vue-anim'}], browser:[{label:'Rendering Pipeline',id:'browser-pipeline'},{label:'DOM + CSSOM',id:'browser-render'},{label:'Middleware',id:'browser-middleware'},{label:'Animated Pipeline',id:'browser-anim'}], engine:[{label:'V8 Pipeline',id:'engine-pipeline'},{label:'Concepts',id:'engine-concepts'},{label:'Animated Diagram',id:'engine-anim'},{label:'WebSockets & Workers',id:'engine-wsw'}], es6:[{label:'Event Loop',id:'es6-eventloop'},{label:'Async/Await',id:'es6-async'},{label:'Modules',id:'es6-modules'}], 'react-adv':[{label:'React Fiber',id:'radv-fiber'},{label:'HOC',id:'radv-hoc'},{label:'Context API',id:'radv-context'},{label:'Portals',id:'radv-portal'},{label:'Fragments',id:'radv-fragment'}],
+  react:[{label:'Component Architecture',id:'react-arch'},{label:'Redux State Flow',id:'react-redux'},{label:'Zustand',id:'react-zustand'},{label:'Animated Diagram',id:'react-anim'}], graphql:[{label:'Apollo Architecture',id:'gql-apollo'},{label:'Core Concepts',id:'gql-concepts'},{label:'Animated Diagram',id:'gql-anim'}], angular:[{label:'Architecture',id:'ng-arch'},{label:'Animated Diagram',id:'ng-anim'}], vue:[{label:'Reactivity System',id:'vue-arch'},{label:'Animated Diagram',id:'vue-anim'}], browser:[{label:'Rendering Pipeline',id:'browser-pipeline'},{label:'DOM + CSSOM',id:'browser-render'},{label:'Middleware',id:'browser-middleware'},{label:'Animated Pipeline',id:'browser-anim'}], engine:[{label:'V8 Pipeline',id:'engine-pipeline'},{label:'Concepts',id:'engine-concepts'},{label:'Animated Diagram',id:'engine-anim'},{label:'WebSockets & Workers',id:'engine-wsw'}], es6:[{label:'Event Loop',id:'es6-eventloop'},{label:'Async/Await',id:'es6-async'},{label:'ES6 Features',id:'es6-features'},{label:'Modules',id:'es6-modules'},{label:'TypeScript',id:'es6-typescript'}], 'react-adv':[{label:'React Fiber',id:'radv-fiber'},{label:'HOC',id:'radv-hoc'},{label:'Context API',id:'radv-context'},{label:'Portals',id:'radv-portal'},{label:'Fragments',id:'radv-fragment'},{label:'Error Boundaries',id:'radv-errorboundary'}],
   react19:[{label:'What is React 19',id:'r19-overview'},{label:'New Hooks',id:'r19-hooks'},{label:'Server Actions',id:'r19-actions'},{label:'Asset Loading',id:'r19-assets'},{label:'React Compiler',id:'r19-compiler'}], build:[{label:'Webpack',id:'build-webpack'},{label:'Webpack Advanced',id:'build-webpack-adv'},{label:'Vite',id:'build-vite'},{label:'Webpack vs Vite',id:'build-compare'},{label:'Monorepo / NX',id:'build-monorepo'}], nextjs:[{label:'CSR',id:'next-csr'},{label:'SSR',id:'next-ssr'},{label:'App Router Flow',id:'next-flow'}], patterns:[{label:'Module',id:'pat-module'},{label:'Singleton',id:'pat-singleton'},{label:'Factory',id:'pat-factory'},{label:'Observer',id:'pat-observer'},{label:'Strategy',id:'pat-strategy'}], vitals:[{label:'Core Vitals Overview',id:'vitals-overview'},{label:'Supporting Metrics',id:'vitals-other'},{label:'Optimization',id:'vitals-optimize'}], security:[{label:'Threat Landscape',id:'sec-overview'},{label:'XSS',id:'sec-xss'},{label:'CORS & CSRF',id:'sec-cors-csrf'},{label:'Scanning & Tools',id:'sec-scanning'}], testing:[{label:'Testing Pyramid',id:'test-pyramid'},{label:'Test Types',id:'test-types'},{label:'Test Patterns',id:'test-patterns'},{label:'Tools Ecosystem',id:'test-tools'}], prepqa:[{label:'Architecture (1-15)',id:'qa-arch'},{label:'Performance (16-25)',id:'qa-perf'},{label:'Design Systems (26-35)',id:'qa-design'},{label:'Tooling & Infra (36-45)',id:'qa-infra'},{label:'Leadership (46-52)',id:'qa-collab'},{label:'Security (53-60)',id:'qa-security'}], backend:[{label:'Node.js Event Loop',id:'be-node-overview'},{label:'Streams & Workers',id:'be-node-streams'},{label:'Clustering & PM2',id:'be-node-perf'},{label:'Express Middleware',id:'be-express-overview'},{label:'Express Architecture',id:'be-express-patterns'},{label:'MongoDB Overview',id:'be-mongo-overview'},{label:'Aggregation & Mongoose',id:'be-mongo-aggregation'},{label:'PostgreSQL Overview',id:'be-pg-overview'},{label:'Advanced PG & Node',id:'be-pg-advanced'},{label:'Full Stack Integration',id:'be-stack-integration'}], cicd:[{label:'Docker & Containers',id:'cicd-docker'},{label:'Kubernetes Orchestration',id:'cicd-k8s'},{label:'Kafka Messaging',id:'cicd-kafka'},{label:'Vercel & Deployment',id:'cicd-vercel'},{label:'CI/CD Pipeline',id:'cicd-pipeline'}],
   hca:[{label:'HTML5 Semantics',id:'hca-html'},{label:'CSS Box Model',id:'hca-css'},{label:'Flexbox',id:'hca-css'},{label:'CSS Grid',id:'hca-css'},{label:'Accessibility',id:'hca-a11y'},{label:'SASS & LESS',id:'hca-preprocessors'}]
 };
