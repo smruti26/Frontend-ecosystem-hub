@@ -74,7 +74,7 @@ transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
 .logo-name{display:flex;flex-direction:column;gap:1px;}
 .logo-title{font-size:15px;font-weight:700;color:var(--t1);line-height:1;}
 .logo-sub{font-size:10.5px;font-weight:400;color:var(--t3);letter-spacing:0.02em;line-height:1;}
-.header-nav{display:flex;gap:3px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;-webkit-mask-image:none;mask-image:none;padding:3px 0;}
+.header-nav{display:flex;gap:1px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;flex:1;min-width:0;-webkit-mask-image:none;mask-image:none;padding:3px 0;}
 .header-nav::-webkit-scrollbar{display:none;}
 .header-nav button{background:none;border:none;padding:5px 8px;border-radius:8px;font-family:inherit;font-size:11.5px;font-weight:500;color:var(--t2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:color 0.2s,background 0.2s;position:relative;display:inline-flex;align-items:center;gap:4px;}
 .header-nav button:hover{color:var(--p600);}
@@ -291,13 +291,26 @@ transition: width 0.1s linear;
 border-radius: 0 2px 2px 0;
 box-shadow: 0 0 8px rgba(139,122,232,0.5);
 }
-/* Header glow line at bottom */
+/* Separator line — full viewport width, below entire header */
 .header::after {
 content: '';
-position: absolute; bottom: 0; left: 0; right: 0;
-height: 1px;
-background: linear-gradient(90deg, transparent, var(--p400), var(--b400), var(--p400), transparent);
-opacity: 0.5;
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+width: 100%;
+height: 2px;
+background: linear-gradient(
+90deg,
+transparent 0%,
+var(--p400) 20%,
+var(--b400) 50%,
+var(--p400) 80%,
+transparent 100%
+);
+opacity: 0.6;
+pointer-events: none;
+z-index: 10;
 }
 /* ── Card hover lift ── */
 .card {
@@ -912,80 +925,104 @@ max-height: 200px;
 }
 }
 /* ══ Two-row header ════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+AUTHORITATIVE HEADER LAYOUT — single source of truth
+Row1: 48px Logo | Search | Theme toggle
+Row2: 38px Full-width scrollable nav
+═══════════════════════════════════════════════════════ */
+/* Header shell */
+.header {
+display: flex !important;
+flex-direction: column !important;
+overflow: visible !important;
+}
+/* Dot watermark SVG fills full header */
+.hdr-pattern {
+position: absolute !important;
+inset: 0 !important;
+width: 100% !important;
+height: 100% !important;
+pointer-events: none;
+z-index: 0;
+}
+/* ── Row 1: Logo + Search + Controls ── */
 .hdr-row1 {
+position: relative;
+z-index: 1;
 display: flex;
 align-items: center;
 justify-content: space-between;
+width: 100%;
 max-width: 1440px;
 margin: 0 auto;
-width: 100%;
 padding: 0 2rem;
 height: 48px;
-gap: 12px;
+gap: 16px;
+box-sizing: border-box;
 }
-.hdr-row2 {
-border-top: 1px solid var(--border);
-background: var(--white);
-transition: background .3s;
-display: flex;
-flex-direction: column;
-}
-[data-theme="dark"] .hdr-row2-inner {
-max-width: 1440px;
-margin: 0 auto;
-padding: 0 2rem;
-display: flex;
-align-items: center;
-gap: 2px;
-height: 40px;
-overflow-x: auto;
-scrollbar-width: none;
-}
-.hdr-row2-inner::-webkit-scrollbar { display: none; }
-/* Nav buttons inside row 2 */
-.hdr-row2-inner .header-nav {
-display: flex;
-align-items: center;
-gap: 2px;
-flex: 1;
-}
-.hdr-row2 .header-nav button,
-.hdr-row2-inner button {
-font-size: 12.5px !important;
-font-weight: 500 !important;
-padding: 5px 10px !important;
-height: 32px !important;
-gap: 5px !important;
-border-radius: 7px !important;
-}
-/* Sidebar sticky top = row1(48) + row2(40) + border(1) = 89px */
-/* sidebar top set in base rule */
-/* ── Mobile: hide row2, show hamburger ── */
-@media (max-width: 900px) {
-.hdr-row1 { height: 50px; padding: 0 1rem; }
-/* hdr-row2 none handled in @media */
-#mob-menu-btn { display: inline-flex !important; }
-}
-@media (max-width: 640px) {
-.hdr-row1 { height: 46px; padding: 0 .75rem; }
-}
-/* ── Row 2 background follows theme ── */
-[data-theme="dark"] 
-/* ── Row1 children vertical alignment ── */
-.hdr-row1 .logo { align-items: center; }
-.hdr-row1 > div:last-child { align-items: center; }
-@media (max-width: 900px) {
-.hdr-row1 { height: 50px; padding: 0 1rem; }
-.hdr-row2 { display: none !important; }
-#mob-menu-btn { display: inline-flex !important; }
-}
-/* ── Row1 right controls — ensure toggle is always visible ── */
+.hdr-row1 .logo { align-items: center; flex-shrink: 0; }
 .hdr-row1 > div:last-child {
 display: flex;
 align-items: center;
 gap: 10px;
 flex-shrink: 0;
 }
+/* ── Row 2: Nav bar — spans FULL viewport width ── */
+.hdr-row2 {
+position: relative;
+z-index: 1;
+width: 100%;
+border-top: 1px solid var(--border);
+background: transparent;
+transition: background .3s;
+display: flex;
+align-items: center;
+height: 42px;
+overflow: visible;
+}
+[data-theme="dark"] .hdr-row2 { background: transparent; }
+/* Inner wrapper: no max-width cap, no overflow clip */
+.hdr-row2-inner {
+display: flex;
+align-items: center;
+width: 100%;
+height: 100%;
+padding: 0 0.75rem;
+box-sizing: border-box;
+overflow: visible;
+}
+/* The scrollable nav — scrolls horizontally to reach CI/CD */
+.hdr-row2-inner .header-nav {
+display: flex !important;
+align-items: center;
+gap: 2px;
+flex: 1;
+min-width: 0;
+height: 100%;
+overflow-x: scroll !important;
+overflow-y: hidden;
+scrollbar-width: none !important;
+-webkit-mask-image: none !important;
+mask-image: none !important;
+flex-wrap: nowrap !important;
+padding-bottom: 2px;
+}
+/* Nav button sizing — compact enough for all 18 items to fit */
+.hdr-row2-inner .header-nav button {
+font-size: 11px !important;
+font-weight: 500 !important;
+padding: 4px 6px !important;
+height: 28px !important;
+gap: 3px !important;
+border-radius: 6px !important;
+white-space: nowrap;
+flex-shrink: 0;
+}
+.hdr-row2-inner .header-nav .nav-icon svg {
+width: 12px !important;
+height: 12px !important;
+}
+/* Theme toggle */
 .theme-toggle {
 background: var(--p100) !important;
 border: 1.5px solid var(--p200) !important;
@@ -995,43 +1032,18 @@ box-shadow: 0 1px 4px rgba(99,65,204,.15) !important;
 background: var(--p50) !important;
 border-color: var(--p200) !important;
 }
-/* ── Ensure row2 shows on desktop, hides on mobile ── */
+/* Desktop: row2 always visible */
 @media (min-width: 901px) {
-.hdr-row2 { display: flex !important; flex-direction: column; }
+.hdr-row2 { display: flex !important; }
 }
-/* ── Nav fills row2 width, CI/CD never clips ── */
-.hdr-row2-inner .header-nav {
-flex: 1;
-min-width: 0;
-overflow-x: auto;
-scrollbar-width: none;
+/* Mobile: collapse row2, show hamburger */
+@media (max-width: 900px) {
+.hdr-row1 { height: 50px; padding: 0 1rem; }
+.hdr-row2 { display: none !important; }
+#mob-menu-btn { display: inline-flex !important; }
 }
-.hdr-row2-inner .header-nav::-webkit-scrollbar { display: none; }
-/* ── Header is a flex column to contain both rows naturally ── */
-.header {
-display: flex !important;
-flex-direction: column !important;
-overflow: visible !important;
-}
-/* ── Row2 inherits the white background with dot watermark ── */
-.hdr-row2 {
-background: transparent !important; /* shows through to .header bg + dots */
-position: relative;
-z-index: 1;
-}
-/* ── Row1 also transparent so dots show ── */
-.hdr-row1 {
-position: relative;
-z-index: 1;
-}
-/* ── The SVG dot pattern covers the full header height automatically ── */
-.hdr-pattern {
-position: absolute !important;
-inset: 0 !important;
-width: 100% !important;
-height: 100% !important;
-pointer-events: none;
-z-index: 0;
+@media (max-width: 640px) {
+.hdr-row1 { height: 46px; padding: 0 .75rem; }
 }
 /* ── Sidebar fix: sticky top = 50(row1) + 40(row2) + 1(border) = 91 ── */
 /* ── AUTHORITATIVE mobile sidebar reset ── */
@@ -1054,88 +1066,6 @@ overflow-y: scroll is the fallback for older browsers. ────────�
 html {
 scrollbar-gutter: stable;
 overflow-y: scroll;
-}
-/* ══ Two-row header layout ══════════════════════════════════ */
-.hdr-row1 {
-display: flex;
-align-items: center;
-justify-content: space-between;
-max-width: 1440px;
-margin: 0 auto;
-width: 100%;
-padding: 0 2rem;
-height: 48px;
-gap: 12px;
-}
-.hdr-row2 {
-border-top: 1px solid var(--border);
-background: var(--white);
-transition: background .3s;
-}
-.hdr-row2-inner {
-max-width: 1440px;
-margin: 0 auto;
-padding: 0 2rem;
-display: flex;
-align-items: center;
-gap: 2px;
-height: 38px;
-overflow-x: auto;
-scrollbar-width: none;
-}
-.hdr-row2-inner::-webkit-scrollbar { display: none; }
-[data-theme="dark"] .hdr-row2 { background: var(--white); }
-/* ── Nav buttons in row 2 — larger & clear ── */
-.header-nav button {
-background: none;
-border: none;
-padding: 5px 9px;
-border-radius: 8px;
-font-family: inherit;
-font-size: 12.5px;
-font-weight: 500;
-color: var(--t2);
-cursor: pointer;
-white-space: nowrap;
-flex-shrink: 0;
-transition: color .2s, background .2s;
-position: relative;
-display: inline-flex;
-align-items: center;
-gap: 5px;
-height: 30px;
-}
-.header-nav button:hover { color: var(--p600); background: var(--p50); }
-.header-nav button.active {
-color: var(--p700) !important;
-font-weight: 600 !important;
-background: var(--p50) !important;
-}
-.header-nav button::after {
-content: '';
-position: absolute;
-bottom: -4px; left: 50%;
-transform: translateX(-50%) scaleX(0);
-width: 70%; height: 2px;
-border-radius: 2px 2px 0 0;
-background: linear-gradient(90deg, var(--p500), var(--b500));
-transition: transform .22s ease;
-}
-.header-nav button.active::after,
-.header-nav button:hover::after {
-transform: translateX(-50%) scaleX(1);
-}
-/* Sidebar sticky offset matches new header height (48+38=86px) */
-.sidebar { top: 90px !important; }
-/* Mobile: row2 becomes scrollable row below row1 */
-@media (max-width: 900px) {
-.hdr-row1 { height: 50px; padding: 0 1rem; }
-.hdr-row2 { display: none; } /* replaced by hamburger menu */
-.sidebar { top: 0 !important; }
-#mob-menu-btn { display: inline-flex !important; }
-}
-@media (max-width: 640px) {
-.hdr-row1 { height: 46px; padding: 0 .75rem; }
 }
 /* ═══════════════════════════════════════════════════════════
 AUTO-COMPLETE SEARCH BAR — polished v2
